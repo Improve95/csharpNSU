@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "philosophers", "philosophers\philosophers.csproj", "{7A11C350-2489-43CC-BA42-BDAD978EBCFF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "strategy", "strategy\strategy.csproj", "{2100DB19-459A-4FC2-B928-693518DFBFE0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7A11C350-2489-43CC-BA42-BDAD978EBCFF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7A11C350-2489-43CC-BA42-BDAD978EBCFF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7A11C350-2489-43CC-BA42-BDAD978EBCFF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7A11C350-2489-43CC-BA42-BDAD978EBCFF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2100DB19-459A-4FC2-B928-693518DFBFE0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2100DB19-459A-4FC2-B928-693518DFBFE0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2100DB19-459A-4FC2-B928-693518DFBFE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2100DB19-459A-4FC2-B928-693518DFBFE0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
