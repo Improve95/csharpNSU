@@ -1,4 +1,4 @@
-namespace philosophers.service.philosophers;
+namespace philosophers.objects.philosophers;
 
 public enum PhilosopherStatus
 {

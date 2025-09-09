@@ -1,4 +1,4 @@
-namespace philosophers.service.fork;
+namespace philosophers.objects.fork;
 
 public enum ForkStatus
 {
