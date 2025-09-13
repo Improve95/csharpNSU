@@ -13,6 +13,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Imanagement\Imanagement.csproj" />
+      <ProjectReference Include="..\philosophers\philosophers.csproj" />
     </ItemGroup>
 
 </Project>

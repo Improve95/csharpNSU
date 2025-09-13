@@ -7,13 +7,4 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
-    <ItemGroup>
-      <ProjectReference Include="..\Imanagement\Imanagement.csproj" />
-      <ProjectReference Include="..\Logger\Logger.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="objects\" />
-    </ItemGroup>
-
 </Project>
