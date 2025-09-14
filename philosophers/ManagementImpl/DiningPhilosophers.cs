@@ -23,13 +23,13 @@ public abstract class DiningPhilosophers
             leftFork = rightFork;
         }
 
-        philosopherManagers[names.Length - 1].Philosopher.RightFork =
-            philosopherManagers[0].Philosopher.LeftFork;
+        philosopherManagers[names.Length - 1].SetRightFork(philosopherManagers[0].GetLeftFork());
         
         var strategy = new PhilosopherDiscreteStrategy(philosopherManagers);
         for (var i = 0; i < 1_000_000; i++)
         {
-            strategy.DoStep();
+            strategy.DoStep(i);
+            Thread.Sleep(500);
         }
     }
 }

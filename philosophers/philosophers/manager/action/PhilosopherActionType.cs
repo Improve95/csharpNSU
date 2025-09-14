@@ -5,14 +5,20 @@ public enum PhilosopherActionType
     Thinking,
     
     Hungry,
+
+    GetLeftFork,
     
-    Eating,
+    TakenLeftFork,
     
     GetRightFork,
     
-    GetLeftFork,
-    
+    TakenRightFork,
+
+    Eating,
+
     ReleaseRightFork,
     
-    ReleaseLeftFork
+    ReleaseLeftFork,
+    
+    ReleaseForks
 }

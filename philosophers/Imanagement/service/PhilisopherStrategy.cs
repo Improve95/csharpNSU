@@ -2,5 +2,5 @@ namespace strategy.service;
 
 public interface IDiscreteStrategy
 {
-    void DoStep();
+    void DoStep(int step);
 }

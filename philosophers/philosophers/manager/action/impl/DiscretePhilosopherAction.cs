@@ -13,14 +13,18 @@ public class DiscretePhilosopherAction : AbstractPhilosopherAction
         { PhilosopherActionType.GetLeftFork, new TimeRemainBorder(2, 2) },
         { PhilosopherActionType.GetRightFork, new TimeRemainBorder(2, 2) },
         { PhilosopherActionType.ReleaseLeftFork, new TimeRemainBorder(1, 1) },
-        { PhilosopherActionType.ReleaseRightFork, new TimeRemainBorder(1, 1) }
+        { PhilosopherActionType.ReleaseRightFork, new TimeRemainBorder(1, 1) },
+        { PhilosopherActionType.ReleaseForks, new TimeRemainBorder(1, 1) }
     };
 
     private static readonly Random Random = new();
 
     public DiscretePhilosopherAction(PhilosopherActionType actionType) : base(actionType)
     {
-        TimeRemain = Random.Next(TimeRemainBorders[actionType].Down, TimeRemainBorders[actionType].Up);
+        TimeRemain = Random.Next(
+            TimeRemainBorders.GetValueOrDefault(actionType, new TimeRemainBorder(0, 0)).Down,
+            TimeRemainBorders.GetValueOrDefault(actionType, new TimeRemainBorder(0, 0)).Up
+        );
     }
     
     public void ReduceTime()

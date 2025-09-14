@@ -1,5 +1,6 @@
 using philosophers.manager.action;
 using philosophers.manager.action.impl;
+using philosophers.objects.fork;
 using philosophers.objects.philosophers;
 
 namespace philosophers.manager.impl;
@@ -9,19 +10,24 @@ public class DiscretePhilosopherManager(Philosopher philosopher) : IPhilosopherM
     
     public Philosopher Philosopher { get; } = philosopher;
 
-    public void DoStep()
+    public Fork GetLeftFork()
     {
-        var philosopherAction = Philosopher.PhilosopherAction;
-        ((DiscretePhilosopherAction) philosopherAction).ReduceTime();
-        if (philosopherAction.TimeIsRemain())
-        {
-            // todo something
-        }
+        return Philosopher.LeftFork;
     }
     
-    public PhilosopherActionType GetAction()
+    public Fork GetRightFork()
     {
-        return Philosopher.PhilosopherAction.ActionType;
+        return Philosopher.RightFork;
+    }
+    
+    public void SetRightFork(Fork fork)
+    {
+        Philosopher.RightFork = fork;
+    }
+    
+    public DiscretePhilosopherAction GetAction()
+    {
+        return (DiscretePhilosopherAction) Philosopher.PhilosopherAction;
     }
 
     public void SetAction(PhilosopherActionType philosopherAction)
