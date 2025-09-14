@@ -4,7 +4,7 @@ public abstract class AbstractPhilosopherAction(PhilosopherActionType actionType
 {
     public PhilosopherActionType ActionType { get; } = actionType;
 
-    protected int TimeRemain { get; set; }
+    public int TimeRemain { get; protected set; }
     
     public bool TimeIsRemain()
     {

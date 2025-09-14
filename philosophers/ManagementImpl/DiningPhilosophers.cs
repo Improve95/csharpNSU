@@ -29,7 +29,7 @@ public abstract class DiningPhilosophers
         for (var i = 0; i < 1_000_000; i++)
         {
             strategy.DoStep(i);
-            Thread.Sleep(500);
+            Thread.Sleep(300);
         }
     }
 }

@@ -24,10 +24,10 @@ public abstract class PhilosopherLogger
                 "{0}: {1}, action time remain: {2}, eating: {3}\n",
                 philosopherManager.Philosopher.Name,
                 philosopherManager.GetAction().ActionType,
-                philosopherManager.GetAction().TimeIsRemain(),
+                philosopherManager.GetAction().TimeRemain,
                 philosopherManager.Philosopher.TotalEating
             ));
-            forks.Add(philosopherManager.GetRightFork());
+            forks.Add(philosopherManager.GetLeftFork());
         }
         
         sb.Append("\nForks:\n");
@@ -36,7 +36,7 @@ public abstract class PhilosopherLogger
             sb.Append(string.Format(
                 "Fork-{0}: {1}\n",
                 fork.Id,
-                fork.Owner == null ? "Available" : "In Use -" + fork.Owner.Name
+                fork.Owner == null ? "Available" : "In Use - " + fork.Owner.Name
             ));
         }
         

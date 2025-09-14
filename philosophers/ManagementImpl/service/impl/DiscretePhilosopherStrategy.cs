@@ -13,193 +13,131 @@ public class PhilosopherDiscreteStrategy(DiscretePhilosopherManager[] philosophe
         builder => builder.AddConsole()
     );
     
-    private static ILogger _logger = LoggerFactory.CreateLogger<PhilosopherDiscreteStrategy>();
+    private static readonly ILogger Logger = LoggerFactory.CreateLogger<PhilosopherDiscreteStrategy>();
     
+
     public void DoStep(int step)
     {
-        var hungryCount = 0; 
+        var tooMuchWaitingCounter = 0;
         foreach (var philosopherManager in philosopherManagers)
         {
+
             var philosopherAction = philosopherManager.GetAction();
+            if (!philosopherAction.TimeIsRemain())
+            {
+                if (StartHungry(philosopherManager)) continue;
+                if (GetLeftFork(philosopherManager)) continue;
+                if (GetRightFork(philosopherManager)) continue;
+                if (StartEating(philosopherManager)) continue;
+                if (ReleaseForks(philosopherManager)) continue;
+                if (StartThinking(philosopherManager)) continue;
+            };
+            
             philosopherAction.ReduceTime();
-            if (philosopherAction.TimeIsRemain()) continue;
 
-            /*switch (philosopherManager.GetAction().ActionType)
+            if (philosopherManager.GetAction().TimeRemain < 0)
             {
-                case PhilosopherActionType.Thinking:
-                {
-                    philosopherManager.SetAction(PhilosopherActionType.Hungry);
-                    break;
-                }
-                case PhilosopherActionType.Hungry or PhilosopherActionType.TakenRightFork:
-                {
-                    var leftFork = philosopherManager.GetLeftFork();
-                    if (leftFork.Owner == null)
-                    {
-                        leftFork.Owner = philosopherManager.Philosopher;
-                        philosopherManager.SetAction(PhilosopherActionType.TakenLeftFork);
-                    } 
-                    break;
-                }
-                case PhilosopherActionType.Hungry or PhilosopherActionType.TakenLeftFork:
-                { 
-                    var rightFork = philosopherManager.GetRightFork();
-                    if (rightFork.Owner == null)
-                    {
-                        rightFork.Owner = philosopherManager.Philosopher;
-                        philosopherManager.SetAction(PhilosopherActionType.TakenRightFork);
-                    }
-                    break;   
-                }
-                case PhilosopherActionType.Eating:
-                {
-                    philosopherManager.SetAction(PhilosopherActionType.ReleaseForks);
-                    break;
-                }
-                case PhilosopherActionType.ReleaseForks:
-                {
-                    philosopherManager.GetLeftFork().Owner = null;
-                    philosopherManager.GetRightFork().Owner = null;
-                    philosopherManager.SetAction(PhilosopherActionType.Thinking);
-                    break;
-                }
-            }*/
-            
-            /*var philosopher = philosopherManager.Philosopher;
-            if (philosopher.LeftFork.Owner == philosopher &&
-                philosopher.RightFork.Owner == philosopher)
-            {
-                philosopherManager.SetAction(PhilosopherActionType.Eating);
-            }*/
-            
-            StartHungry(philosopherManager);
-            TakeLeftFork(philosopherManager);
-            TakeRightFork(philosopherManager);
-            StartEating(philosopherManager);
-            ReleaseForks(philosopherManager);
-            StartThinking(philosopherManager);
-
-            if (philosopherManager.GetAction().ActionType == PhilosopherActionType.Hungry)
-            {
-                hungryCount++;
+                tooMuchWaitingCounter++;
             }
-        }
-
-        if (hungryCount >= philosopherManagers.Length)
-        {
-            throw new Exception("deadlock");
         }
         
         var log = PhilosopherLogger.CreateLog(step, philosopherManagers);
-        _logger.LogInformation(log);
+        Logger.LogInformation(log);
+
+        if (tooMuchWaitingCounter >= philosopherManagers.Length)
+        {
+            throw new Exception($"deadlock on {step} step");
+        }
     }
 
-    private void StartHungry(DiscretePhilosopherManager philosopherManager)
+    private bool StartHungry(DiscretePhilosopherManager philosopherManager)
     {
         if (philosopherManager.GetAction().ActionType == PhilosopherActionType.Thinking)
         {
             philosopherManager.SetAction(PhilosopherActionType.Hungry);
+            return true;
         }
+
+        return false;
     }
     
-    private void TakeLeftFork(DiscretePhilosopherManager philosopherManager)
+    private bool GetLeftFork(DiscretePhilosopherManager philosopherManager)
     {
         if (philosopherManager.GetAction().ActionType == PhilosopherActionType.Hungry ||
-            philosopherManager.GetAction().ActionType == PhilosopherActionType.TakenRightFork)
+            philosopherManager.GetAction().ActionType == PhilosopherActionType.GetRightFork)
         {
             var leftFork = philosopherManager.GetLeftFork();
             if (leftFork.Owner == null)
             {
                 leftFork.Owner = philosopherManager.Philosopher;
-                philosopherManager.SetAction(PhilosopherActionType.TakenLeftFork);
-            } 
+                philosopherManager.SetAction(PhilosopherActionType.GetLeftFork);
+                return true;
+            }
         }
+
+        return false;
     }
 
-    private void TakeRightFork(DiscretePhilosopherManager philosopherManager)
+    private bool GetRightFork(DiscretePhilosopherManager philosopherManager)
     {
         if (philosopherManager.GetAction().ActionType == PhilosopherActionType.Hungry ||
-            philosopherManager.GetAction().ActionType == PhilosopherActionType.TakenLeftFork)
+            philosopherManager.GetAction().ActionType == PhilosopherActionType.GetLeftFork)
         {
             var rightFork = philosopherManager.GetRightFork();
             if (rightFork.Owner == null)
             {
                 rightFork.Owner = philosopherManager.Philosopher;
-                philosopherManager.SetAction(PhilosopherActionType.TakenRightFork);
+                philosopherManager.SetAction(PhilosopherActionType.GetRightFork);
+                return true;
             }
         }
+
+        return false;
     }
 
-    private void StartEating(DiscretePhilosopherManager philosopherManager)
+    private bool StartEating(DiscretePhilosopherManager philosopherManager)
     {
         var philosopher = philosopherManager.Philosopher;
-        if (philosopher.LeftFork.Owner == philosopher &&
+        if (philosopherManager.GetAction().ActionType == PhilosopherActionType.Hungry &&
+            philosopher.LeftFork.Owner == philosopher &&
             philosopher.RightFork.Owner == philosopher)
         {
             philosopherManager.SetAction(PhilosopherActionType.Eating);
+            return true;
         }
+
+        return false;
     }
 
-    private void ReleaseForks(DiscretePhilosopherManager philosopherManager)
+    private bool ReleaseForks(DiscretePhilosopherManager philosopherManager)
     {
         if (philosopherManager.GetAction().ActionType == PhilosopherActionType.Eating)
         {
             philosopherManager.SetAction(PhilosopherActionType.ReleaseForks);
+            return true;
         }
+
+        return false;
     }
     
-    private void StartThinking(DiscretePhilosopherManager philosopherManager)
+    private bool StartThinking(DiscretePhilosopherManager philosopherManager)
     {
         if (philosopherManager.GetAction().ActionType == PhilosopherActionType.ReleaseForks)
         {
             philosopherManager.GetLeftFork().Owner = null;
             philosopherManager.GetRightFork().Owner = null;
             philosopherManager.SetAction(PhilosopherActionType.Thinking);
+            return true;
         }
+
+        return false;
     }
-    
-    private void ProcessOnHungryPhilosopher(DiscretePhilosopherManager philosopherManager)
+
+    private void CheckDeadlock()
     {
-        /*var leftFork = philosopherManager.GetLeftFork();
-        var rightFork = philosopherManager.GetRightFork();
-
-        bool canEat = true;
-
-        if (leftFork.Status == ForkStatus.Available)
+        foreach (var philosopherManager in philosopherManagers)
         {
-            leftFork.Status = ForkStatus.InUse;
+            
         }
-        else
-        {
-            canEat = false;
-        }
-
-        if (rightFork.Status == ForkStatus.Available)
-        {
-            rightFork.Status = ForkStatus.InUse;
-        }
-        else
-        {
-            canEat = false;
-        }
-
-        if (canEat)
-        {
-            philosopherManager.SetAction(PhilosopherActionType.Eating);
-        }*/
-    }
-    
-    private void ReduceActionRemainTime(DiscretePhilosopherManager philosopherManager)
-    {
-        var philosopherAction = philosopherManager.GetAction();
-        philosopherAction.ReduceTime();
-        
-        // if (philosopherAction.ActionType == PhilosopherActionType.Hungry) return;
-        if (!philosopherAction.TimeIsRemain()) return;
-        
-        // if (philosopherAction.ActionType == PhilosopherActionType.Thinking)
-        // {
-        //     philosopherManager.SetAction(PhilosopherActionType.Hungry);
-        // }
     }
 }
