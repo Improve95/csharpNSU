@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace philosophers.manager.action.impl;
+namespace philosophers.action.impl;
 
 public class DiscretePhilosopherAction : AbstractPhilosopherAction
 {

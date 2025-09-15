@@ -1,4 +1,4 @@
-namespace philosophers.manager.action;
+namespace philosophers.action;
 
 public interface IPhilosopherAction
 {

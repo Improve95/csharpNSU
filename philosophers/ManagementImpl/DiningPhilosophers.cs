@@ -25,11 +25,10 @@ public abstract class DiningPhilosophers
 
         philosopherManagers[names.Length - 1].SetRightFork(philosopherManagers[0].GetLeftFork());
         
-        var strategy = new PhilosopherDiscreteStrategy(philosopherManagers);
+        var strategy = new DiscreteStrategy(philosopherManagers);
         for (var i = 0; i < 1_000_000; i++)
         {
             strategy.DoStep(i);
-            Thread.Sleep(300);
         }
     }
 }

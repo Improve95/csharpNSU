@@ -7,10 +7,7 @@ namespace ManagementImpl.logger;
 public abstract class PhilosopherLogger
 {
 
-    public static string CreateLog(
-        int step,
-        IPhilosopherManager[] philosopherManagers
-    )
+    public static string CreateLog(int step, IDiscretePhilosopherManager[] philosopherManagers) 
     {
         var sb = new StringBuilder();
         sb.Append($"===== STEP {step} =====\n");
@@ -18,16 +15,16 @@ public abstract class PhilosopherLogger
 
         var forks = new HashSet<Fork>();
         
-        foreach (var philosopherManager in philosopherManagers)
+        foreach (var manager in philosopherManagers)
         {
             sb.Append(string.Format(
-                "{0}: {1}, action time remain: {2}, eating: {3}\n",
-                philosopherManager.Philosopher.Name,
-                philosopherManager.GetAction().ActionType,
-                philosopherManager.GetAction().TimeRemain,
-                philosopherManager.Philosopher.TotalEating
+                "{0}: {1}, remain: {2}, eating: {3}\n",
+                manager.GetPhilosopherName(),
+                manager.GetAction().ActionType,
+                manager.GetAction().TimeRemain,
+                manager.GetTotalEating()
             ));
-            forks.Add(philosopherManager.GetLeftFork());
+            forks.Add(manager.GetLeftFork());
         }
         
         sb.Append("\nForks:\n");

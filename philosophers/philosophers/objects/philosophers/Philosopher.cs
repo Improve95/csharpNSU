@@ -1,5 +1,5 @@
-using philosophers.manager.action;
-using philosophers.manager.action.impl;
+using philosophers.action;
+using philosophers.action.impl;
 using philosophers.objects.fork;
 
 namespace philosophers.objects.philosophers;
@@ -30,7 +30,7 @@ public class Philosopher
         _nextId++;
     }
 
-    public void AddEating()
+    public void IncreaseEating()
     {
         TotalEating++;
     }
