@@ -1,7 +1,7 @@
 using ManagementImpl.logger;
+using ManagementImpl.manager.impl;
 using Microsoft.Extensions.Logging;
 using philosophers.action;
-using philosophers.manager.impl;
 using strategy.service;
 
 namespace ManagementImpl.service.impl;

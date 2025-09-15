@@ -2,15 +2,16 @@ using philosophers.action;
 using philosophers.action.impl;
 using philosophers.objects.fork;
 
-namespace philosophers.manager;
+namespace ManagementImpl.manager;
 
 public interface IDiscretePhilosopherManager
 {
+    int GetPhilosopherId();
+    string GetPhilosopherName();
+    int GetTotalEating();
     Fork GetLeftFork();
     Fork GetRightFork();
     DiscretePhilosopherAction GetAction();
     void SetAction(PhilosopherActionType philosopherAction);
-    int GetPhilosopherId();
-    string GetPhilosopherName();
-    int GetTotalEating();
+    bool PhilosopherIsOwnerBothFork();
 }

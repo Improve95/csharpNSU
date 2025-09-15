@@ -3,11 +3,10 @@ using philosophers.action.impl;
 using philosophers.objects.fork;
 using philosophers.objects.philosophers;
 
-namespace philosophers.manager.impl;
+namespace ManagementImpl.manager;
 
-public class DiscretePhilosopherManager(Philosopher philosopher) : IDiscretePhilosopherManager
+public abstract class AbstractDiscretePhilosopherManager(Philosopher philosopher): IDiscretePhilosopherManager
 {
-    
     public Philosopher Philosopher { get; } = philosopher;
 
     public int GetPhilosopherId()

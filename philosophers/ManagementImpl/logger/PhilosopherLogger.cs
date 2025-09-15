@@ -1,5 +1,5 @@
 using System.Text;
-using philosophers.manager;
+using ManagementImpl.manager;
 using philosophers.objects.fork;
 
 namespace ManagementImpl.logger;
