@@ -1,6 +1,6 @@
+using ManagementImpl.manager;
 using ManagementImpl.manager.impl.coordinator;
 using philosophers.objects.fork;
-using philosophers.objects.philosophers;
 using strategy.service;
 
 namespace ManagementImpl.service.impl;
@@ -21,10 +21,10 @@ public class DiscreteCoordinator: IDiscreteCoordinator
     
     public delegate void StartEatingEvent();
     public static event StartEatingEvent? StartEatingNotify;
-
+    
     public delegate void ReleaseForkImmediatelyEvent(ForkType forkType);
     public static event ReleaseForkImmediatelyEvent? ReleaseForkImmediatelyNotify;
-
+    
     public delegate void StartThinkingEvent();
     public static event StartThinkingEvent? StartThinkingNotify;
     
@@ -34,17 +34,43 @@ public class DiscreteCoordinator: IDiscreteCoordinator
         _forks = forks;
         DiscreteCoordinatorPhilosopherManager.PhilosopherHungryNotify += OnPhilosopherHungryEvent;
     }
-
+    
     public void SetStrategy(DiscreteCoordinatorStrategy strategy)
     {
         _strategy = strategy;
     }
-
+    
     public IEnumerable<DiscreteCoordinatorPhilosopherManager> GetManagersIterator()
     {
         return _managers;
     }
 
+    public void ReduceTime(DiscreteCoordinatorPhilosopherManager manager)
+    {
+        manager.GetAction().ReduceTime();
+    }
+    
+    public void CheckPhilosopherHungry(DiscreteCoordinatorPhilosopherManager manager)
+    {
+        manager.CheckPhilosopherHungry();
+    }
+
+    public bool TryGetFork(DiscreteCoordinatorPhilosopherManager manager, Fork fork)
+    {
+        var whoTryGet = manager.Philosopher;
+        var whoAlreadyGot = fork.Owner;
+        if (whoAlreadyGot == whoTryGet) return true;
+        if (whoAlreadyGot != null && AbstractDiscretePhilosopherManager.PhilosopherIsOwnerBothFork(whoAlreadyGot)) return false;
+
+        if (AbstractDiscretePhilosopherManager.PhilosopherIsOwnerBothFork(whoTryGet))
+        {
+            // todo Notify release fork
+            // todo присвоить вилку другому
+        }
+        
+        return true;
+    }
+    
     public void NotifyStartHungry()
     {
         StartHungryNotify?.Invoke();
@@ -72,8 +98,8 @@ public class DiscreteCoordinator: IDiscreteCoordinator
         StartThinkingNotify?.Invoke();
     }
     
-    private void OnPhilosopherHungryEvent(Philosopher philosopher) 
+    private void OnPhilosopherHungryEvent(DiscreteCoordinatorPhilosopherManager manager)
     {
-        _strategy.ResolveHungryPhilosopher(philosopher);
+        _strategy.AddHungryPhilosopher(manager);
     }
 }

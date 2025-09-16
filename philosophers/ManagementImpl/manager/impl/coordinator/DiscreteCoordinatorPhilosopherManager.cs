@@ -4,9 +4,11 @@ using philosophers.objects.philosophers;
 
 namespace ManagementImpl.manager.impl.coordinator;
 
-public class DiscreteCoordinatorPhilosopherManager: AbstractDiscretePhilosopherManager
+public class DiscreteCoordinatorPhilosopherManager: 
+    AbstractDiscretePhilosopherManager, 
+    IDiscreteCoordinatorPhilosopherManager
 {
-    public delegate void PhilosopherHungryEvent(Philosopher philosopher);
+    public delegate void PhilosopherHungryEvent(DiscreteCoordinatorPhilosopherManager manager);
     
     public static event PhilosopherHungryEvent? PhilosopherHungryNotify;
     
@@ -23,7 +25,7 @@ public class DiscreteCoordinatorPhilosopherManager: AbstractDiscretePhilosopherM
     {
         if (GetActionType() == PhilosopherActionType.Hungry)
         { 
-            PhilosopherHungryNotify?.Invoke(Philosopher);
+            PhilosopherHungryNotify?.Invoke(this);
         }
     }
 
