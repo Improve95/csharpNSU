@@ -1,6 +1,8 @@
 using ManagementImpl.service.impl;
 using philosophers.action;
+using philosophers.objects.fork;
 using philosophers.objects.philosophers;
+using static philosophers.action.PhilosopherActionType;
 
 namespace ManagementImpl.manager.impl.coordinator;
 
@@ -14,7 +16,6 @@ public class DiscreteCoordinatorPhilosopherManager:
     
     public DiscreteCoordinatorPhilosopherManager(Philosopher philosopher) : base(philosopher)
     {
-        DiscreteCoordinator.StartHungryNotify += OnStartHungryEvent;
         DiscreteCoordinator.GetForkNotify += OnGetForkEvent;
         DiscreteCoordinator.StartEatingNotify += OnStartEatingEvent;
         DiscreteCoordinator.ReleaseForkImmediatelyNotify += OnReleaseForkImmediatelyEvent;
@@ -23,34 +24,33 @@ public class DiscreteCoordinatorPhilosopherManager:
     
     public void CheckPhilosopherHungry()
     {
-        if (GetActionType() == PhilosopherActionType.Hungry)
+        if (GetActionType() == Hungry)
         { 
             PhilosopherHungryNotify?.Invoke(this);
         }
     }
 
-    private void OnGetForkEvent(ForkType forkType)
+    private void OnGetForkEvent(DiscreteCoordinatorPhilosopherManager manager, Fork fork)
     {
-        
-    }
-
-    private void OnStartHungryEvent()
-    {
-        
+        SetAction(Philosopher.LeftFork == fork
+            ? PhilosopherActionType.GetLeftFork
+            : PhilosopherActionType.GetRightFork);
     }
     
-    private void OnStartEatingEvent()
+    private void OnStartEatingEvent(DiscreteCoordinatorPhilosopherManager manager)
     {
-        
+        SetAction(Eating);
     }
 
-    private void OnReleaseForkImmediatelyEvent(ForkType forkType)
+    private void OnReleaseForkImmediatelyEvent(DiscreteCoordinatorPhilosopherManager manager, Fork fork)
     {
-        
+        SetAction(Philosopher.LeftFork == fork 
+            ? ReleaseLeftFork 
+            : ReleaseRightFork);
     }
 
-    private void OnStartThinkingEvent()
+    private void OnStartThinkingEvent(DiscreteCoordinatorPhilosopherManager manager)
     {
-        
+        SetAction(Thinking);
     }
 }

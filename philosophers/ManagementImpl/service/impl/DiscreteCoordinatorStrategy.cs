@@ -1,5 +1,6 @@
 using ManagementImpl.manager.impl.coordinator;
 using strategy.service;
+using static philosophers.action.PhilosopherActionType;
 
 namespace ManagementImpl.service.impl;
 
@@ -12,10 +13,12 @@ public class DiscreteCoordinatorStrategy(DiscreteCoordinator coordinator) : IDis
     {
         foreach (var manager in coordinator.GetManagersIterator())
         {
-            coordinator.CheckPhilosopherHungry(manager);
+            coordinator.CheckPhilosopherState(manager);
             ResolveHungryPhilosopher(manager);
             coordinator.ReduceTime(manager);
         }
+        
+        coordinator.CreateLog(step);
     }
     
     public void AddHungryPhilosopher(DiscreteCoordinatorPhilosopherManager manager)
@@ -23,6 +26,16 @@ public class DiscreteCoordinatorStrategy(DiscreteCoordinator coordinator) : IDis
         _hungryPhilosophers.Add(manager);
     }
 
+    public void CalculateNextPhilosopherState(DiscreteCoordinatorPhilosopherManager manager)
+    {
+        if (manager.GetActionType() == Eating)
+        {
+            coordinator.NotifyReleaseForkImmediately(manager, manager.GetLeftFork());
+            coordinator.NotifyReleaseForkImmediately(manager, manager.GetRightFork());
+            coordinator.NotifyStartThinking(manager);
+        }
+    }
+    
     private void ResolveHungryPhilosopher(DiscreteCoordinatorPhilosopherManager manager)
     {
         if (!_hungryPhilosophers.Contains(manager)) return;
@@ -33,7 +46,7 @@ public class DiscreteCoordinatorStrategy(DiscreteCoordinator coordinator) : IDis
         var isGetRightFork = coordinator.TryGetFork(manager, rightFork);
         if (isGetLeftFork && isGetRightFork)
         {
-            // todo Notify начало обеда
+            coordinator.NotifyStartEating(manager);
         }
     }
 }

@@ -1,5 +1,7 @@
+using ManagementImpl.logger;
 using ManagementImpl.manager;
 using ManagementImpl.manager.impl.coordinator;
+using Microsoft.Extensions.Logging;
 using philosophers.objects.fork;
 using strategy.service;
 
@@ -7,25 +9,28 @@ namespace ManagementImpl.service.impl;
 
 public class DiscreteCoordinator: IDiscreteCoordinator
 {
+    private static readonly ILoggerFactory LoggerFactory = Microsoft.Extensions.Logging.LoggerFactory.Create(
+        builder => builder.AddConsole()
+    );
+    
+    private static readonly ILogger Logger = LoggerFactory.CreateLogger<DiscreteCoordinator>();
+    
     private readonly DiscreteCoordinatorPhilosopherManager[] _managers;
 
     private readonly Fork[] _forks;
 
     private DiscreteCoordinatorStrategy _strategy;
-
-    public delegate void StartHungryEvent();
-    public static event StartHungryEvent? StartHungryNotify;
     
-    public delegate void GetForkEvent(ForkType forkType);
+    public delegate void GetForkEvent(DiscreteCoordinatorPhilosopherManager manager, Fork fork);
     public static event GetForkEvent? GetForkNotify;
     
-    public delegate void StartEatingEvent();
+    public delegate void StartEatingEvent(DiscreteCoordinatorPhilosopherManager manager);
     public static event StartEatingEvent? StartEatingNotify;
     
-    public delegate void ReleaseForkImmediatelyEvent(ForkType forkType);
+    public delegate void ReleaseForkImmediatelyEvent(DiscreteCoordinatorPhilosopherManager manager, Fork fork);
     public static event ReleaseForkImmediatelyEvent? ReleaseForkImmediatelyNotify;
     
-    public delegate void StartThinkingEvent();
+    public delegate void StartThinkingEvent(DiscreteCoordinatorPhilosopherManager manager);
     public static event StartThinkingEvent? StartThinkingNotify;
     
     public DiscreteCoordinator(DiscreteCoordinatorPhilosopherManager[] managers, Fork[] forks) 
@@ -50,8 +55,12 @@ public class DiscreteCoordinator: IDiscreteCoordinator
         manager.GetAction().ReduceTime();
     }
     
-    public void CheckPhilosopherHungry(DiscreteCoordinatorPhilosopherManager manager)
+    public void CheckPhilosopherState(DiscreteCoordinatorPhilosopherManager manager)
     {
+        if (!manager.GetAction().TimeIsRemain())
+        {
+            _strategy.CalculateNextPhilosopherState(manager);
+        }
         manager.CheckPhilosopherHungry();
     }
 
@@ -64,38 +73,42 @@ public class DiscreteCoordinator: IDiscreteCoordinator
 
         if (AbstractDiscretePhilosopherManager.PhilosopherIsOwnerBothFork(whoTryGet))
         {
-            // todo Notify release fork
-            // todo присвоить вилку другому
+            NotifyReleaseForkImmediately(_managers.First(manager => manager.Philosopher == whoAlreadyGot), fork);
         }
+        
+        NotifyGetFork(manager, fork);
         
         return true;
     }
-    
-    public void NotifyStartHungry()
+
+    public bool NotifyGetFork(DiscreteCoordinatorPhilosopherManager manager, Fork fork)
     {
-        StartHungryNotify?.Invoke();
+        fork.Owner = manager.Philosopher;
+        GetForkNotify?.Invoke(manager, fork);
+        return true;
     }
 
-    public bool NotifyGetFork(ForkType forkType)
+    public void NotifyStartEating(DiscreteCoordinatorPhilosopherManager manager)
     {
-        GetForkNotify?.Invoke(forkType);
+        StartEatingNotify?.Invoke(manager);
+    }
+
+    public bool NotifyReleaseForkImmediately(DiscreteCoordinatorPhilosopherManager manager, Fork fork)
+    {
+        ReleaseForkImmediatelyNotify?.Invoke(manager, fork);
         return false;
     }
 
-    public void NotifyStartEating()
+    public void NotifyStartThinking(DiscreteCoordinatorPhilosopherManager manager)
     {
-        StartEatingNotify?.Invoke();
+        StartThinkingNotify?.Invoke(manager);
     }
 
-    public bool NotifyReleaseForkImmediately(ForkType forkType)
+    public void CreateLog(int step)
     {
-        ReleaseForkImmediatelyNotify?.Invoke(forkType);
-        return false;
-    }
-
-    public void NotifyStartThinking()
-    {
-        StartThinkingNotify?.Invoke();
+        var log = PhilosopherLogger.CreateLog(step, _managers);
+        Logger.LogInformation(log);
+        Thread.Sleep(500);
     }
     
     private void OnPhilosopherHungryEvent(DiscreteCoordinatorPhilosopherManager manager)
