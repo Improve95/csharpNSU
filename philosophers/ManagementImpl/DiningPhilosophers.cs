@@ -1,6 +1,8 @@
+using ManagementImpl.logger;
 using ManagementImpl.manager.impl;
 using ManagementImpl.manager.impl.coordinator;
 using ManagementImpl.service.impl;
+using Microsoft.Extensions.Logging;
 using philosophers.objects.fork;
 using philosophers.objects.philosophers;
 
@@ -9,6 +11,12 @@ namespace ManagementImpl;
 public abstract class DiningPhilosophers
 {
 
+    private static readonly ILoggerFactory LoggerFactory = Microsoft.Extensions.Logging.LoggerFactory.Create(
+        builder => builder.AddConsole()
+    );
+    
+    private static readonly ILogger Logger = LoggerFactory.CreateLogger<DiningPhilosophers>();
+    
     public static void SimulateDiscrete()
     {
         var names = File.ReadAllLines("names.txt");
@@ -56,9 +64,18 @@ public abstract class DiningPhilosophers
         var strategy = new DiscreteCoordinatorStrategy(coordinator);
         coordinator.SetStrategy(strategy);
         
-        for (var i = 0; i < 1_000_000; i++)
+        try
         {
-            strategy.DoStep(i);
+            for (var i = 0; i < 1_000_000; i++)
+            {
+                strategy.DoStep(i);
+            }
+        }
+        finally 
+        {
+            var metrics = coordinator.GetFinalMetrics();
+            var statLog = PhilosopherLogger.CreateStatLog(metrics);
+            Logger.LogInformation(statLog);
         }
     }
 }

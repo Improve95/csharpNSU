@@ -8,10 +8,10 @@ public class Fork
 {
     private static int _nextId;
     
-    public int Id { get; }
-
     public Philosopher? Owner { get; private set; }
 
+    public int Id { get; }
+    
     public ForkStatus Status { get; private set; }
     
     public void SetOwner(Philosopher owner)
@@ -32,7 +32,7 @@ public class Fork
         _nextId++;
     }
 
-    public bool isOwner(Philosopher philosopher)
+    public bool IsOwner(Philosopher philosopher)
     {
         return Owner == philosopher;
     }

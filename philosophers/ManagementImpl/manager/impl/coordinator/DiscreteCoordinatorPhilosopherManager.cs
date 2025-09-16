@@ -23,6 +23,7 @@ public class DiscreteCoordinatorPhilosopherManager:
     
     public DiscreteCoordinatorPhilosopherManager(Philosopher philosopher) : base(philosopher)
     {
+        DiscreteCoordinator.StartHungryNotify += OnStartHungryEvent;
         DiscreteCoordinator.GetForkNotify += OnGetForkEvent;
         DiscreteCoordinator.StartEatingNotify += OnStartEatingEvent;
         DiscreteCoordinator.ReleaseForkImmediatelyNotify += OnReleaseForkImmediatelyEvent;
@@ -33,9 +34,14 @@ public class DiscreteCoordinatorPhilosopherManager:
     {
         if (GetActionType() == Thinking && !GetAction().TimeIsRemain())
         { 
-            SetAction(Hungry);
             PhilosopherHungryNotify?.Invoke(this);
         }
+    }
+    
+    private void OnStartHungryEvent(DiscreteCoordinatorPhilosopherManager manager)
+    {
+        if (manager != this) { return; }
+        SetAction(Hungry);
     }
     
     private void OnGetForkEvent(DiscreteCoordinatorPhilosopherManager manager, Fork fork)

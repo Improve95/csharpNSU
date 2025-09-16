@@ -1,6 +1,7 @@
 using ManagementImpl.manager;
+using philosophers.action;
 using philosophers.objects.fork;
-using static philosophers.objects.fork.ForkStatus;
+using static philosophers.action.PhilosopherActionType;
 
 namespace ManagementImpl.metric;
 
@@ -13,7 +14,9 @@ public class PhilosopherMetricsCollector
     private readonly IDictionary<int, PhilosopherStat> _philosopherStats = new Dictionary<int, PhilosopherStat>();
     
     private readonly IDictionary<int, ForkStat> _forkStats = new Dictionary<int, ForkStat>();
-    
+
+    private const int StepForSpeed = 1000;
+
     public PhilosopherMetricsCollector(IDiscretePhilosopherManager[] managers, Fork[] forks)
     {
         _managers = managers;
@@ -27,8 +30,91 @@ public class PhilosopherMetricsCollector
             _forkStats[fork.Id] = new ForkStat();
         }
     }
-
+    
     public void Collect(int step)
+    {
+        CollectPhilosophersStat(step);
+        CollectForksStat();
+    }
+
+    public FinalStat GetFinalStat()
+    {
+        var middleEatingSpeeds = new List<double>();
+        var hungryTimes = new List<double>();
+        foreach (var manager in _managers)
+        {
+            var stat = _philosopherStats[manager.GetPhilosopherId()];
+            middleEatingSpeeds.Add(stat.MiddleEatingCount);
+            hungryTimes.Add(stat.MiddleHungryTime);
+        }
+
+        var forksStatusesTimes = new List<List<ForkStatusesTime>>();
+        foreach (var fork in _forks)
+        {
+            var stat = _forkStats[fork.Id];
+            var forkStatusesTimes = stat.ForkStatusStat
+                .Select(keyValuePair => new ForkStatusesTime(keyValuePair.Key, keyValuePair.Value))
+                .ToList();
+            forksStatusesTimes.Add(forkStatusesTimes);
+        }
+        
+        return new FinalStat(
+            _managers,
+            _forks,
+            middleEatingSpeeds,
+            PhilosopherStat.MiddleEatingSpeedByAll,
+            hungryTimes,
+            PhilosopherStat.MiddleHungryTimeByAll,
+            PhilosopherStat.MaxHungryWaitingTime,
+            PhilosopherStat.TheMostHungry,
+            forksStatusesTimes);
+    }
+    
+    private void CollectPhilosophersStat(int step)
+    {
+        foreach (var manager in _managers)
+        {
+            var philosopherStat = _philosopherStats[manager.GetPhilosopherId()];
+            var currentAction = manager.GetAction().ActionType;
+         
+            if (step % StepForSpeed == 0)
+            {
+                PhilosopherStat.MiddleHungryTimeByAll = PhilosopherStat.TotalHungryCountByAll / StepForSpeed;
+                PhilosopherStat.MiddleEatingSpeedByAll = PhilosopherStat.TotalEatingSpeedByAll / StepForSpeed;
+                philosopherStat.MiddleEatingCount = philosopherStat.CurrentEatingCount / StepForSpeed;
+                philosopherStat.CurrentEatingCount = 0;
+            }
+            
+            if (currentAction == Hungry)
+            {
+                philosopherStat.CurrentHungryTime++;
+                if (philosopherStat.CurrentHungryTime > PhilosopherStat.MaxHungryWaitingTime)
+                {
+                    PhilosopherStat.MaxHungryWaitingTime = philosopherStat.CurrentHungryTime;
+                    PhilosopherStat.TheMostHungry = manager;
+                }
+            }
+            else
+            {
+                if (philosopherStat.PrevAction == Hungry)
+                {
+                    PhilosopherStat.TotalHungryCountByAll++;
+                    PhilosopherStat.TotalHungryTimeByAll += philosopherStat.CurrentHungryTime;
+                    philosopherStat.CurrentHungryTime = 0;
+                }
+            }
+
+            if (currentAction == Eating && philosopherStat.PrevAction != Eating)
+            {
+                philosopherStat.CurrentEatingCount++;
+                philosopherStat.TotalEatingCount++;
+            }
+            
+            philosopherStat.PrevAction = currentAction;
+        }
+    }
+
+    private void CollectForksStat()
     {
         foreach (var fork in _forks)
         {
@@ -36,25 +122,49 @@ public class PhilosopherMetricsCollector
             forkStat.ForkStatusStat[fork.Status]++;
         }
     }
-
-    public string GetFinalStat()
-    {
-        return null;
-    }
+    
+    public record FinalStat(
+        IDiscretePhilosopherManager[] Managers,
+        Fork[] Forks,
+        List<double> MiddleEatingSpeeds,
+        double MiddleEatingSpeedsByAll,
+        List<double> MiddleHungryTimes,
+        double MiddleHungryTimesByAll,
+        int MaxHungryWaitingTime,
+        IDiscretePhilosopherManager? TheMostHungry,
+        List<List<ForkStatusesTime>> ForksStatusesTimes);
     
     private class PhilosopherStat
     {
-        private int TotalEating { get; set; }
+        public static int MaxHungryWaitingTime { get; set; }
+        public static IDiscretePhilosopherManager? TheMostHungry { get; set; }
+        public static int TotalHungryTimeByAll { get; set; }
+        public static int TotalHungryCountByAll { get; set; }
+        public static double MiddleHungryTimeByAll { get; set; }
+
+        public static int TotalEatingSpeedByAll { get; set; }
+        public static double MiddleEatingSpeedByAll { get; set; }
+
+        public double MiddleHungryTime { get; set; }
+        public int CurrentHungryTime { get; set; }
+
+        public double MiddleEatingCount { get; set; }
+        public int CurrentEatingCount { get; set; }
+        public int TotalEatingCount { get; set; }
+
+        public PhilosopherActionType? PrevAction { get; set; }
+        
+        public IDictionary<PhilosopherActionType, int> PhilosophersStatusStat { get; } = 
+            Enum.GetValues<PhilosopherActionType>()
+                .ToDictionary(type => type, _ => 0);
     }
     
     private class ForkStat
     {
-        public IDictionary<ForkStatus, int> ForkStatusStat { get; } = new Dictionary<ForkStatus, int>()
-        {
-            { InUse, 0 },
-            { Available, 0 }
-        };
+        public IDictionary<ForkStatus, int> ForkStatusStat { get; } = 
+            Enum.GetValues<ForkStatus>()
+                .ToDictionary(type => type, _ => 0);
     }
-    
-    public record FinalStat(int res);
+
+    public record ForkStatusesTime(ForkStatus Status, int Time);
 }

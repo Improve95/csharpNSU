@@ -3,6 +3,7 @@ using ManagementImpl.manager.impl;
 using Microsoft.Extensions.Logging;
 using philosophers.action;
 using strategy.service;
+using static philosophers.objects.fork.ForkStatus;
 
 namespace ManagementImpl.service.impl;
 
@@ -66,7 +67,7 @@ public class DiscreteStrategy(DiscretePhilosopherManager[] philosopherManagers) 
             manager.GetActionType() == PhilosopherActionType.GetRightFork)
         {
             var leftFork = manager.GetLeftFork();
-            if (leftFork.Owner == null)
+            if (leftFork.Status == Available)
             {
                 leftFork.SetOwner(manager.Philosopher);
                 manager.SetAction(PhilosopherActionType.GetLeftFork);
@@ -83,7 +84,7 @@ public class DiscreteStrategy(DiscretePhilosopherManager[] philosopherManagers) 
             manager.GetActionType() == PhilosopherActionType.GetLeftFork)
         {
             var rightFork = manager.GetRightFork();
-            if (rightFork.Owner == null)
+            if (rightFork.Status == Available)
             {
                 rightFork.SetOwner(manager.Philosopher);
                 manager.SetAction(PhilosopherActionType.GetRightFork);

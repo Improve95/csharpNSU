@@ -70,19 +70,13 @@ public abstract class AbstractDiscretePhilosopherManager(Philosopher philosopher
     
     public bool PhilosopherIsOwnerBothFork()
     {
-        return Philosopher.LeftFork.Owner == Philosopher && 
-               Philosopher.RightFork.Owner == Philosopher;
+        return Philosopher.LeftFork.IsOwner(Philosopher) &&
+               Philosopher.RightFork.IsOwner(Philosopher);
     }
 
     public static bool PhilosopherIsOwnerBothFork(Philosopher philosopher)
     {
-        return philosopher.LeftFork.Owner == philosopher &&
-               philosopher.RightFork.Owner == philosopher;
-    }
-
-    public static bool PhilosopherIsOwnerAtLeastOneFork(Philosopher philosopher)
-    {
-        return philosopher.LeftFork.Owner == philosopher ||
-               philosopher.RightFork.Owner == philosopher;
+        return philosopher.LeftFork.IsOwner(philosopher) &&
+               philosopher.RightFork.IsOwner(philosopher);
     }
 }

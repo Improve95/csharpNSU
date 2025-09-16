@@ -5,6 +5,7 @@ using ManagementImpl.metric;
 using Microsoft.Extensions.Logging;
 using philosophers.objects.fork;
 using strategy.service;
+using static ManagementImpl.metric.PhilosopherMetricsCollector;
 
 namespace ManagementImpl.service.impl;
 
@@ -23,6 +24,9 @@ public class DiscreteCoordinator: IDiscreteCoordinator
     private DiscreteCoordinatorStrategy _strategy;
 
     private readonly PhilosopherMetricsCollector _metricsCollector;
+    
+    public delegate void StartHungryEvent(DiscreteCoordinatorPhilosopherManager manager);
+    public static event StartHungryEvent? StartHungryNotify;
     
     public delegate void GetForkEvent(DiscreteCoordinatorPhilosopherManager manager, Fork fork);
     public static event GetForkEvent? GetForkNotify;
@@ -70,6 +74,8 @@ public class DiscreteCoordinator: IDiscreteCoordinator
 
     public bool TryGetFork(DiscreteCoordinatorPhilosopherManager manager, Fork fork)
     {
+        if (manager.GetAction().TimeIsRemain()) return false;
+        
         var whoTryGet = manager.Philosopher;
         var whoAlreadyGot = fork.Owner;
         if (whoAlreadyGot == whoTryGet) return true;
@@ -77,7 +83,7 @@ public class DiscreteCoordinator: IDiscreteCoordinator
 
         if (AbstractDiscretePhilosopherManager.PhilosopherIsOwnerBothFork(whoTryGet))
         {
-            NotifyReleaseForkImmediately(_managers.First(manager => manager.Philosopher == whoAlreadyGot), fork);
+            NotifyReleaseForkImmediately(_managers.First(man => man.Philosopher == whoAlreadyGot), fork);
         }
         
         NotifyGetFork(manager, fork);
@@ -85,6 +91,11 @@ public class DiscreteCoordinator: IDiscreteCoordinator
         return true;
     }
 
+    public void NotifyStartHungry(DiscreteCoordinatorPhilosopherManager manager)
+    {
+        StartHungryNotify?.Invoke(manager);
+    }
+    
     public bool NotifyGetFork(DiscreteCoordinatorPhilosopherManager manager, Fork fork)
     {
         fork.SetOwner(manager.Philosopher);
@@ -126,9 +137,14 @@ public class DiscreteCoordinator: IDiscreteCoordinator
         }
     }
 
-    public void CollectMetrics()
+    public void CollectMetrics(int step)
     {
-        
+        _metricsCollector.Collect(step);
+    }
+
+    public FinalStat GetFinalMetrics()
+    {
+        return _metricsCollector.GetFinalStat();
     }
     
     public void CreateLog(int step)

@@ -1,6 +1,7 @@
 using System.Text;
 using ManagementImpl.manager;
 using philosophers.objects.fork;
+using static ManagementImpl.metric.PhilosopherMetricsCollector;
 
 namespace ManagementImpl.logger;
 
@@ -31,12 +32,59 @@ public abstract class PhilosopherLogger
         foreach (var fork in forks)
         {
             sb.Append(string.Format(
-                "Fork-{0}: {1}\n",
-                fork.Id,
-                fork.Owner == null ? "Available" : "In Use - " + fork.Owner.Name
+                "Fork-{0}: {1} {2}\n", 
+                fork.Id, 
+                fork.Status, 
+                fork.Status == ForkStatus.Available ? "Available" : "In Use - " + fork.Owner?.Name
             ));
         }
         
         return sb.ToString();
     }
+
+    public static string CreateStatLog(FinalStat stat)
+    {
+        var sb = new StringBuilder();
+
+        sb.AppendLine("===== Итоговая статистика философов =====");
+        sb.AppendLine();
+
+        sb.AppendLine("Общие показатели:");
+        sb.AppendLine($"Средняя скорость еды по всем философам: {stat.MiddleEatingSpeedsByAll:F2}");
+        sb.AppendLine($"Среднее время голода по всем философам: {stat.MiddleHungryTimesByAll:F2}");
+        sb.AppendLine($"Максимальное время ожидания голода: {stat.MaxHungryWaitingTime}");
+
+        if (stat.TheMostHungry != null) 
+            sb.AppendLine($"Самый голодный философ: {stat.TheMostHungry.Philosopher.Name}");
+
+        sb.AppendLine();
+        sb.AppendLine("Статистика по философам:");
+        for (var i = 0; i < stat.Managers.Length; i++)
+        {
+            var eatingSpeed = stat.MiddleEatingSpeeds.ElementAtOrDefault(i);
+            var hungryTime = stat.MiddleHungryTimes.ElementAtOrDefault(i);
+
+            sb.AppendLine($"Философ #{i + 1}:");
+            sb.AppendLine($"  Средняя скорость еды: {eatingSpeed:F2}");
+            sb.AppendLine($"  Среднее время голода: {hungryTime:F2}");
+            sb.AppendLine();
+        }
+
+        sb.AppendLine("Статистика вилок:");
+        for (var i = 0; i < stat.Forks.Length; i++)
+        {
+            Fork fork = stat.Forks[i];
+            sb.AppendLine($"Вилка id-{fork.Id}:");
+            if (i < stat.ForksStatusesTimes.Count)
+            {
+                foreach (var status in stat.ForksStatusesTimes[i])
+                    sb.AppendLine($"  {status}");
+            }
+            sb.AppendLine();
+        }
+
+        sb.AppendLine("===== Конец статистики =====");
+        return sb.ToString();
+    }
+
 }
