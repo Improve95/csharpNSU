@@ -1,4 +1,3 @@
-using ManagementImpl.logger;
 using ManagementImpl.manager;
 using ManagementImpl.manager.impl.coordinator;
 using ManagementImpl.metric;
@@ -149,9 +148,9 @@ public class DiscreteCoordinator: IDiscreteCoordinator
     
     public void CreateLog(int step)
     {
-        var log = PhilosopherLogger.CreateLog(step, _managers);
-        Logger.LogInformation(log);
-        Thread.Sleep(500);
+        // var log = PhilosopherLogger.CreateLog(step, _managers);
+        // Logger.LogInformation(log);
+        // Thread.Sleep(500);
     }
     
     private void OnPhilosopherHungryEvent(DiscreteCoordinatorPhilosopherManager manager)

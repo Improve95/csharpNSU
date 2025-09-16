@@ -72,17 +72,23 @@ public class PhilosopherMetricsCollector
     
     private void CollectPhilosophersStat(int step)
     {
+        if (step % StepForSpeed == 0)
+        {
+            PhilosopherStat.MiddleHungryTimeByAll = PhilosopherStat.TotalHungryCountByAll / (double)StepForSpeed;
+            PhilosopherStat.MiddleEatingSpeedByAll = PhilosopherStat.TotalEatingSpeedByAll / (double)StepForSpeed;
+        }
+        
         foreach (var manager in _managers)
         {
             var philosopherStat = _philosopherStats[manager.GetPhilosopherId()];
             var currentAction = manager.GetAction().ActionType;
-         
+
             if (step % StepForSpeed == 0)
             {
-                PhilosopherStat.MiddleHungryTimeByAll = PhilosopherStat.TotalHungryCountByAll / StepForSpeed;
-                PhilosopherStat.MiddleEatingSpeedByAll = PhilosopherStat.TotalEatingSpeedByAll / StepForSpeed;
-                philosopherStat.MiddleEatingCount = philosopherStat.CurrentEatingCount / StepForSpeed;
+                philosopherStat.MiddleHungryTime = philosopherStat.CurrentHungryTime / (double)StepForSpeed;
+                philosopherStat.MiddleEatingCount = philosopherStat.CurrentEatingCount / (double)StepForSpeed;
                 philosopherStat.CurrentEatingCount = 0;
+                philosopherStat.CurrentHungryTime = 0;
             }
             
             if (currentAction == Hungry)
@@ -100,14 +106,13 @@ public class PhilosopherMetricsCollector
                 {
                     PhilosopherStat.TotalHungryCountByAll++;
                     PhilosopherStat.TotalHungryTimeByAll += philosopherStat.CurrentHungryTime;
-                    philosopherStat.CurrentHungryTime = 0;
                 }
             }
 
             if (currentAction == Eating && philosopherStat.PrevAction != Eating)
             {
                 philosopherStat.CurrentEatingCount++;
-                philosopherStat.TotalEatingCount++;
+                PhilosopherStat.TotalEatingSpeedByAll++;
             }
             
             philosopherStat.PrevAction = currentAction;
@@ -150,7 +155,6 @@ public class PhilosopherMetricsCollector
 
         public double MiddleEatingCount { get; set; }
         public int CurrentEatingCount { get; set; }
-        public int TotalEatingCount { get; set; }
 
         public PhilosopherActionType? PrevAction { get; set; }
         

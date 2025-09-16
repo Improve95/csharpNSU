@@ -1,5 +1,5 @@
-using ManagementImpl.logger;
 using ManagementImpl.manager.impl;
+using ManagementImpl.metric;
 using Microsoft.Extensions.Logging;
 using philosophers.action;
 using strategy.service;
@@ -7,7 +7,7 @@ using static philosophers.objects.fork.ForkStatus;
 
 namespace ManagementImpl.service.impl;
 
-public class DiscreteStrategy(DiscretePhilosopherManager[] philosopherManagers) : IDiscreteStrategy
+public class DiscreteStrategy : IDiscreteStrategy
 {
     
     private static readonly ILoggerFactory LoggerFactory = Microsoft.Extensions.Logging.LoggerFactory.Create(
@@ -15,11 +15,23 @@ public class DiscreteStrategy(DiscretePhilosopherManager[] philosopherManagers) 
     );
     
     private static readonly ILogger Logger = LoggerFactory.CreateLogger<DiscreteStrategy>();
+
+    private readonly DiscretePhilosopherManager[] _managers;
     
+    private readonly PhilosopherMetricsCollector _metricsCollector;
+
+    public DiscreteStrategy(
+        DiscretePhilosopherManager[] managers,
+        PhilosopherMetricsCollector metricsCollector)
+    {
+        _managers = managers;
+        _metricsCollector = metricsCollector;
+    }
+
     public void DoStep(int step)
     {
         var tooMuchWaitingCounter = 0;
-        foreach (var manager in philosopherManagers)
+        foreach (var manager in _managers)
         {
             var philosopherAction = manager.GetAction();
             if (!philosopherAction.TimeIsRemain())
@@ -40,14 +52,15 @@ public class DiscreteStrategy(DiscretePhilosopherManager[] philosopherManagers) 
             }
         }
         
-        var log = PhilosopherLogger.CreateLog(step, philosopherManagers);
+        _metricsCollector.Collect(step);
+        // var log = PhilosopherLogger.CreateLog(step, _managers);
         // Logger.LogInformation(log);
+        // Thread.Sleep(300);
 
-        if (tooMuchWaitingCounter >= philosopherManagers.Length)
+        if (tooMuchWaitingCounter >= _managers.Length)
         {
             throw new Exception($"deadlock on {step} step");
         }
-        // Thread.Sleep(300);
     }
 
     private bool StartHungry(DiscretePhilosopherManager manager)

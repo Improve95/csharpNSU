@@ -1,6 +1,7 @@
 using ManagementImpl.logger;
 using ManagementImpl.manager.impl;
 using ManagementImpl.manager.impl.coordinator;
+using ManagementImpl.metric;
 using ManagementImpl.service.impl;
 using Microsoft.Extensions.Logging;
 using philosophers.objects.fork;
@@ -22,6 +23,7 @@ public abstract class DiningPhilosophers
         var names = File.ReadAllLines("names.txt");
 
         var philosopherManagers = new DiscretePhilosopherManager[names.Length];
+        var forks = new Fork[names.Length];
         var leftFork = new Fork();
         for (var i = 0; i < names.Length; i++)
         {
@@ -29,16 +31,28 @@ public abstract class DiningPhilosophers
             philosopherManagers[i] = new DiscretePhilosopherManager(
                 new Philosopher(names[i], leftFork, rightFork)
             );
+            forks[i % names.Length] = leftFork;
             leftFork = rightFork;
         }
 
         philosopherManagers[names.Length - 1].SetRightFork(philosopherManagers[0].GetLeftFork());
-        
-        var strategy = new DiscreteStrategy(philosopherManagers);
-        for (var i = 0; i < 1_000_000; i++)
+
+        var metricsCollector = new PhilosopherMetricsCollector(philosopherManagers, forks);
+        var strategy = new DiscreteStrategy(philosopherManagers, metricsCollector);
+        try
         {
-            strategy.DoStep(i);
+            for (var i = 0; i < 1_000_000; i++)
+            {
+                strategy.DoStep(i);
+            }
         }
+        finally
+        {
+            var metrics = metricsCollector.GetFinalStat();
+            var statLog = PhilosopherLogger.CreateStatLog(metrics);
+            Logger.LogInformation(statLog);
+        }
+        
     }
 
     public static void SimulateDiscreteCoordinator()
@@ -54,7 +68,7 @@ public abstract class DiningPhilosophers
             philosopherManagers[i] = new DiscreteCoordinatorPhilosopherManager(
                 new Philosopher(names[i], leftFork, rightFork)
             );
-            forks[i % names.Length] = rightFork;
+            forks[i % names.Length] = leftFork;
             leftFork = rightFork;
         }
 
@@ -66,7 +80,7 @@ public abstract class DiningPhilosophers
         
         try
         {
-            for (var i = 0; i < 1_000_000; i++)
+            for (var i = 0; i < 100000; i++)
             {
                 strategy.DoStep(i);
             }

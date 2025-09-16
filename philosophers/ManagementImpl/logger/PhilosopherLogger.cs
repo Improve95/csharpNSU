@@ -50,8 +50,8 @@ public abstract class PhilosopherLogger
         sb.AppendLine();
 
         sb.AppendLine("Общие показатели:");
-        sb.AppendLine($"Средняя скорость еды по всем философам: {stat.MiddleEatingSpeedsByAll:F2}");
-        sb.AppendLine($"Среднее время голода по всем философам: {stat.MiddleHungryTimesByAll:F2}");
+        sb.AppendLine($"Средняя скорость еды по всем философам: {stat.MiddleEatingSpeedsByAll}");
+        sb.AppendLine($"Среднее время голода по всем философам: {stat.MiddleHungryTimesByAll}");
         sb.AppendLine($"Максимальное время ожидания голода: {stat.MaxHungryWaitingTime}");
 
         if (stat.TheMostHungry != null) 
@@ -61,12 +61,13 @@ public abstract class PhilosopherLogger
         sb.AppendLine("Статистика по философам:");
         for (var i = 0; i < stat.Managers.Length; i++)
         {
+            var manager = stat.Managers[i];
             var eatingSpeed = stat.MiddleEatingSpeeds.ElementAtOrDefault(i);
             var hungryTime = stat.MiddleHungryTimes.ElementAtOrDefault(i);
 
-            sb.AppendLine($"Философ #{i + 1}:");
-            sb.AppendLine($"  Средняя скорость еды: {eatingSpeed:F2}");
-            sb.AppendLine($"  Среднее время голода: {hungryTime:F2}");
+            sb.AppendLine($"{manager.GetPhilosopherName()} id-{manager.GetPhilosopherId()}:");
+            sb.AppendLine($"  Средняя скорость еды: {eatingSpeed}");
+            sb.AppendLine($"  Среднее время голода: {hungryTime}");
             sb.AppendLine();
         }
 
