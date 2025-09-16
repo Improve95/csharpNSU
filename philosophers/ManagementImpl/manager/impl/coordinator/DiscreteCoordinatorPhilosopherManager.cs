@@ -1,4 +1,5 @@
 using ManagementImpl.service.impl;
+using Microsoft.Extensions.Logging;
 using philosophers.action;
 using philosophers.objects.fork;
 using philosophers.objects.philosophers;
@@ -10,6 +11,12 @@ public class DiscreteCoordinatorPhilosopherManager:
     AbstractDiscretePhilosopherManager, 
     IDiscreteCoordinatorPhilosopherManager
 {
+    private static readonly ILoggerFactory LoggerFactory = Microsoft.Extensions.Logging.LoggerFactory.Create(
+        builder => builder.AddConsole()
+    );
+    
+    private static readonly ILogger Logger = LoggerFactory.CreateLogger<DiscreteCoordinatorPhilosopherManager>();
+    
     public delegate void PhilosopherHungryEvent(DiscreteCoordinatorPhilosopherManager manager);
     
     public static event PhilosopherHungryEvent? PhilosopherHungryNotify;
@@ -24,14 +31,16 @@ public class DiscreteCoordinatorPhilosopherManager:
     
     public void CheckPhilosopherHungry()
     {
-        if (GetActionType() == Hungry)
+        if (GetActionType() == Thinking && !GetAction().TimeIsRemain())
         { 
+            SetAction(Hungry);
             PhilosopherHungryNotify?.Invoke(this);
         }
     }
-
+    
     private void OnGetForkEvent(DiscreteCoordinatorPhilosopherManager manager, Fork fork)
     {
+        if (manager != this) { return; }
         SetAction(Philosopher.LeftFork == fork
             ? PhilosopherActionType.GetLeftFork
             : PhilosopherActionType.GetRightFork);
@@ -39,11 +48,13 @@ public class DiscreteCoordinatorPhilosopherManager:
     
     private void OnStartEatingEvent(DiscreteCoordinatorPhilosopherManager manager)
     {
+        if (manager != this) { return; }
         SetAction(Eating);
     }
 
     private void OnReleaseForkImmediatelyEvent(DiscreteCoordinatorPhilosopherManager manager, Fork fork)
     {
+        if (manager != this) { return; }
         SetAction(Philosopher.LeftFork == fork 
             ? ReleaseLeftFork 
             : ReleaseRightFork);
@@ -51,6 +62,7 @@ public class DiscreteCoordinatorPhilosopherManager:
 
     private void OnStartThinkingEvent(DiscreteCoordinatorPhilosopherManager manager)
     {
+        if (manager != this) { return; }
         SetAction(Thinking);
     }
 }

@@ -1,6 +1,7 @@
 using ManagementImpl.logger;
 using ManagementImpl.manager;
 using ManagementImpl.manager.impl.coordinator;
+using ManagementImpl.metric;
 using Microsoft.Extensions.Logging;
 using philosophers.objects.fork;
 using strategy.service;
@@ -20,6 +21,8 @@ public class DiscreteCoordinator: IDiscreteCoordinator
     private readonly Fork[] _forks;
 
     private DiscreteCoordinatorStrategy _strategy;
+
+    private readonly PhilosopherMetricsCollector _metricsCollector;
     
     public delegate void GetForkEvent(DiscreteCoordinatorPhilosopherManager manager, Fork fork);
     public static event GetForkEvent? GetForkNotify;
@@ -37,6 +40,7 @@ public class DiscreteCoordinator: IDiscreteCoordinator
     {
         _managers = managers;
         _forks = forks;
+        _metricsCollector = new PhilosopherMetricsCollector(managers, forks);
         DiscreteCoordinatorPhilosopherManager.PhilosopherHungryNotify += OnPhilosopherHungryEvent;
     }
     
@@ -83,7 +87,7 @@ public class DiscreteCoordinator: IDiscreteCoordinator
 
     public bool NotifyGetFork(DiscreteCoordinatorPhilosopherManager manager, Fork fork)
     {
-        fork.Owner = manager.Philosopher;
+        fork.SetOwner(manager.Philosopher);
         GetForkNotify?.Invoke(manager, fork);
         return true;
     }
@@ -95,6 +99,7 @@ public class DiscreteCoordinator: IDiscreteCoordinator
 
     public bool NotifyReleaseForkImmediately(DiscreteCoordinatorPhilosopherManager manager, Fork fork)
     {
+        fork.DropOwner();
         ReleaseForkImmediatelyNotify?.Invoke(manager, fork);
         return false;
     }
@@ -104,6 +109,28 @@ public class DiscreteCoordinator: IDiscreteCoordinator
         StartThinkingNotify?.Invoke(manager);
     }
 
+    public void CheckDeadlock(int step)
+    {
+        var tooMuchWaitingCounter = 0;
+        foreach (var manager in _managers)
+        {
+            if (manager.GetAction().TimeRemain < 0)
+            {
+                tooMuchWaitingCounter++;
+            }
+        }
+
+        if (tooMuchWaitingCounter >= _managers.Length)
+        {
+            throw new Exception($"deadlock on {step} step");
+        }
+    }
+
+    public void CollectMetrics()
+    {
+        
+    }
+    
     public void CreateLog(int step)
     {
         var log = PhilosopherLogger.CreateLog(step, _managers);

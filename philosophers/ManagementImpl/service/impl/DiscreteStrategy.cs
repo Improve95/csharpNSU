@@ -15,13 +15,11 @@ public class DiscreteStrategy(DiscretePhilosopherManager[] philosopherManagers) 
     
     private static readonly ILogger Logger = LoggerFactory.CreateLogger<DiscreteStrategy>();
     
-
     public void DoStep(int step)
     {
         var tooMuchWaitingCounter = 0;
         foreach (var manager in philosopherManagers)
         {
-
             var philosopherAction = manager.GetAction();
             if (!philosopherAction.TimeIsRemain())
             {
@@ -70,7 +68,7 @@ public class DiscreteStrategy(DiscretePhilosopherManager[] philosopherManagers) 
             var leftFork = manager.GetLeftFork();
             if (leftFork.Owner == null)
             {
-                leftFork.Owner = manager.Philosopher;
+                leftFork.SetOwner(manager.Philosopher);
                 manager.SetAction(PhilosopherActionType.GetLeftFork);
                 return true;
             }
@@ -87,7 +85,7 @@ public class DiscreteStrategy(DiscretePhilosopherManager[] philosopherManagers) 
             var rightFork = manager.GetRightFork();
             if (rightFork.Owner == null)
             {
-                rightFork.Owner = manager.Philosopher;
+                rightFork.SetOwner(manager.Philosopher);
                 manager.SetAction(PhilosopherActionType.GetRightFork);
                 return true;
             }
@@ -124,8 +122,8 @@ public class DiscreteStrategy(DiscretePhilosopherManager[] philosopherManagers) 
     {
         if (manager.GetActionType() == PhilosopherActionType.ReleaseForks)
         {
-            manager.GetLeftFork().Owner = null;
-            manager.GetRightFork().Owner = null;
+            manager.GetLeftFork().DropOwner();
+            manager.GetRightFork().DropOwner();
             manager.SetAction(PhilosopherActionType.Thinking);
             return true;
         }

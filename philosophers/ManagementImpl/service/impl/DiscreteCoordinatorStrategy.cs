@@ -19,6 +19,7 @@ public class DiscreteCoordinatorStrategy(DiscreteCoordinator coordinator) : IDis
         }
         
         coordinator.CreateLog(step);
+        coordinator.CheckDeadlock(step);
     }
     
     public void AddHungryPhilosopher(DiscreteCoordinatorPhilosopherManager manager)
@@ -40,13 +41,14 @@ public class DiscreteCoordinatorStrategy(DiscreteCoordinator coordinator) : IDis
     {
         if (!_hungryPhilosophers.Contains(manager)) return;
         
-        var leftFok = manager.GetLeftFork();
-        var isGetLeftFork = coordinator.TryGetFork(manager, leftFok);
+        var leftFork = manager.GetLeftFork();
         var rightFork = manager.GetRightFork(); 
+        var isGetLeftFork = coordinator.TryGetFork(manager, leftFork);
         var isGetRightFork = coordinator.TryGetFork(manager, rightFork);
         if (isGetLeftFork && isGetRightFork)
         {
             coordinator.NotifyStartEating(manager);
+            _hungryPhilosophers.Remove(manager);
         }
     }
 }
