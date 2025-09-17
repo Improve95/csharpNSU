@@ -1,4 +1,4 @@
-using ManagementImpl.manager.impl.coordinator;
+using ManagementImpl.manager.impl;
 using strategy.service;
 using static philosophers.action.PhilosopherActionType;
 
@@ -53,7 +53,7 @@ public class DiscreteCoordinatorStrategy(DiscreteCoordinator coordinator) : IDis
         
         var leftFork = manager.GetLeftFork();
         var rightFork = manager.GetRightFork();
-        var isGetLeftFork = coordinator.TryGetFork(manager, leftFork);
-        var isGetRightFork = coordinator.TryGetFork(manager, rightFork);
+        coordinator.TryGetFork(manager, leftFork);
+        coordinator.TryGetFork(manager, rightFork);
     }
 }

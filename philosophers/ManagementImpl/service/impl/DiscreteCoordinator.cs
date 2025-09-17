@@ -1,6 +1,6 @@
 using ManagementImpl.logger;
 using ManagementImpl.manager;
-using ManagementImpl.manager.impl.coordinator;
+using ManagementImpl.manager.impl;
 using ManagementImpl.metric;
 using Microsoft.Extensions.Logging;
 using philosophers.objects.fork;

@@ -1,6 +1,5 @@
 using ManagementImpl.logger;
 using ManagementImpl.manager.impl;
-using ManagementImpl.manager.impl.coordinator;
 using ManagementImpl.metric;
 using ManagementImpl.service.impl;
 using Microsoft.Extensions.Logging;

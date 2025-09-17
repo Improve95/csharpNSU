@@ -5,7 +5,7 @@ using philosophers.objects.fork;
 using philosophers.objects.philosophers;
 using static philosophers.action.PhilosopherActionType;
 
-namespace ManagementImpl.manager.impl.coordinator;
+namespace ManagementImpl.manager.impl;
 
 public class DiscreteCoordinatorPhilosopherManager: 
     AbstractDiscretePhilosopherManager, 
