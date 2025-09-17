@@ -4,7 +4,8 @@ public abstract class Program
 {
     public static void Main()
     {
-        // DiningPhilosophers.SimulateDiscrete();
-        DiningPhilosophers.SimulateDiscreteCoordinator();
+        bool enableLog = false;
+        DiningPhilosophers.SimulateDiscrete(enableLog);
+        // DiningPhilosophers.SimulateDiscreteCoordinator(enableLog);
     }
 }

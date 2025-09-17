@@ -1,3 +1,4 @@
+using ManagementImpl.logger;
 using ManagementImpl.manager.impl;
 using ManagementImpl.metric;
 using Microsoft.Extensions.Logging;
@@ -28,7 +29,7 @@ public class DiscreteStrategy : IDiscreteStrategy
         _metricsCollector = metricsCollector;
     }
 
-    public void DoStep(int step)
+    public void DoStep(int step, bool enableLog)
     {
         var tooMuchWaitingCounter = 0;
         foreach (var manager in _managers)
@@ -45,7 +46,7 @@ public class DiscreteStrategy : IDiscreteStrategy
             };
             
             philosopherAction.ReduceTime();
-
+            if (enableLog) CreateLog(step);
             if (manager.GetAction().TimeRemain < 0)
             {
                 tooMuchWaitingCounter++;
@@ -53,10 +54,7 @@ public class DiscreteStrategy : IDiscreteStrategy
         }
         
         _metricsCollector.Collect(step);
-        // var log = PhilosopherLogger.CreateLog(step, _managers);
-        // Logger.LogInformation(log);
-        // Thread.Sleep(300);
-
+        
         if (tooMuchWaitingCounter >= _managers.Length)
         {
             throw new Exception($"deadlock on {step} step");
@@ -143,5 +141,12 @@ public class DiscreteStrategy : IDiscreteStrategy
         }
 
         return false;
+    }
+
+    private void CreateLog(int step)
+    {
+        var log = PhilosopherLogger.CreateLog(step, _managers);
+        Logger.LogInformation(log);
+        Thread.Sleep(500);   
     }
 }

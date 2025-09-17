@@ -18,7 +18,7 @@ public abstract class DiningPhilosophers
     
     private static readonly ILogger Logger = LoggerFactory.CreateLogger<DiningPhilosophers>();
     
-    public static void SimulateDiscrete()
+    public static void SimulateDiscrete(bool enableLog)
     {
         var names = File.ReadAllLines("names.txt");
 
@@ -43,7 +43,7 @@ public abstract class DiningPhilosophers
         {
             for (var i = 0; i < 1_000_000; i++)
             {
-                strategy.DoStep(i);
+                strategy.DoStep(i, enableLog);
             }
         }
         finally
@@ -55,7 +55,7 @@ public abstract class DiningPhilosophers
         
     }
 
-    public static void SimulateDiscreteCoordinator()
+    public static void SimulateDiscreteCoordinator(bool enableLog)
     {
         var names = File.ReadAllLines("names.txt");
 
@@ -82,7 +82,7 @@ public abstract class DiningPhilosophers
         {
             for (var i = 0; i < 100000; i++)
             {
-                strategy.DoStep(i);
+                strategy.DoStep(i, enableLog);
             }
         }
         finally 

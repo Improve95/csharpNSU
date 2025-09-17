@@ -9,7 +9,7 @@ public class DiscreteCoordinatorStrategy(DiscreteCoordinator coordinator) : IDis
     private readonly ISet<DiscreteCoordinatorPhilosopherManager> _hungryPhilosophers =
         new HashSet<DiscreteCoordinatorPhilosopherManager>();
     
-    public void DoStep(int step)
+    public void DoStep(int step, bool enableLog)
     {
         foreach (var manager in coordinator.GetManagersIterator())
         {
@@ -19,7 +19,7 @@ public class DiscreteCoordinatorStrategy(DiscreteCoordinator coordinator) : IDis
         }
         
         coordinator.CollectMetrics(step);
-        coordinator.CreateLog(step);
+        if (enableLog) coordinator.CreateLog(step);
         coordinator.CheckDeadlock(step);
     }
     
