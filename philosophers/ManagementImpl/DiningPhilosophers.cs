@@ -37,10 +37,10 @@ public abstract class DiningPhilosophers
         philosopherManagers[names.Length - 1].SetRightFork(philosopherManagers[0].GetLeftFork());
 
         var metricsCollector = new PhilosopherMetricsCollector(philosopherManagers, forks);
-        var strategy = new DiscreteStrategy(philosopherManagers, metricsCollector);
+        var strategy = new NativeStrategy(philosopherManagers, metricsCollector);
         try
         {
-            for (var i = 0; i < 1_000_000; i++)
+            for (var i = 0; i < 1000000; i++)
             {
                 strategy.DoStep(i, enableLog);
             }
@@ -79,7 +79,7 @@ public abstract class DiningPhilosophers
         
         try
         {
-            for (var i = 0; i < 100000; i++)
+            for (var i = 0; i < 1000000; i++)
             {
                 strategy.DoStep(i, enableLog);
             }

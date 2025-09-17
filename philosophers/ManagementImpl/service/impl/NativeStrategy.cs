@@ -8,20 +8,20 @@ using static philosophers.objects.fork.ForkStatus;
 
 namespace ManagementImpl.service.impl;
 
-public class DiscreteStrategy : IDiscreteStrategy
+public class NativeStrategy : IDiscreteStrategy
 {
     
     private static readonly ILoggerFactory LoggerFactory = Microsoft.Extensions.Logging.LoggerFactory.Create(
         builder => builder.AddConsole()
     );
     
-    private static readonly ILogger Logger = LoggerFactory.CreateLogger<DiscreteStrategy>();
+    private static readonly ILogger Logger = LoggerFactory.CreateLogger<NativeStrategy>();
 
     private readonly DiscretePhilosopherManager[] _managers;
     
     private readonly PhilosopherMetricsCollector _metricsCollector;
 
-    public DiscreteStrategy(
+    public NativeStrategy(
         DiscretePhilosopherManager[] managers,
         PhilosopherMetricsCollector metricsCollector)
     {
@@ -43,18 +43,17 @@ public class DiscreteStrategy : IDiscreteStrategy
                 if (StartEating(manager)) continue;
                 if (ReleaseForks(manager)) continue;
                 if (StartThinking(manager)) continue;
-            };
+            }
             
             philosopherAction.ReduceTime();
-            if (enableLog) CreateLog(step);
             if (manager.GetAction().TimeRemain < 0)
             {
                 tooMuchWaitingCounter++;
             }
         }
         
+        if (enableLog) CreateLog(step);
         _metricsCollector.Collect(step);
-        
         if (tooMuchWaitingCounter >= _managers.Length)
         {
             throw new Exception($"deadlock on {step} step");
@@ -139,7 +138,7 @@ public class DiscreteStrategy : IDiscreteStrategy
             manager.SetAction(PhilosopherActionType.Thinking);
             return true;
         }
-
+        
         return false;
     }
 

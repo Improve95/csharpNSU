@@ -1,5 +1,4 @@
 using ManagementImpl.service.impl;
-using Microsoft.Extensions.Logging;
 using philosophers.action;
 using philosophers.objects.fork;
 using philosophers.objects.philosophers;
@@ -11,12 +10,6 @@ public class DiscreteCoordinatorPhilosopherManager:
     AbstractDiscretePhilosopherManager, 
     IDiscreteCoordinatorPhilosopherManager
 {
-    private static readonly ILoggerFactory LoggerFactory = Microsoft.Extensions.Logging.LoggerFactory.Create(
-        builder => builder.AddConsole()
-    );
-    
-    private static readonly ILogger Logger = LoggerFactory.CreateLogger<DiscreteCoordinatorPhilosopherManager>();
-    
     public delegate void PhilosopherHungryEvent(DiscreteCoordinatorPhilosopherManager manager);
     
     public static event PhilosopherHungryEvent? PhilosopherHungryNotify;

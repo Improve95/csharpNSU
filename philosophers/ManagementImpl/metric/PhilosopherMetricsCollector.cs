@@ -72,10 +72,12 @@ public class PhilosopherMetricsCollector
     
     private void CollectPhilosophersStat(int step)
     {
+        PhilosopherStat.MiddleHungryTimeByAll = PhilosopherStat.TotalHungryTimeByAll / 
+                                                (double)PhilosopherStat.TotalHungryCountByAll;
         if (step % StepForSpeed == 0)
         {
-            PhilosopherStat.MiddleHungryTimeByAll = PhilosopherStat.TotalHungryCountByAll / (double)StepForSpeed;
-            PhilosopherStat.MiddleEatingSpeedByAll = PhilosopherStat.TotalEatingSpeedByAll / (double)StepForSpeed;
+            PhilosopherStat.MiddleEatingSpeedByAll = PhilosopherStat.TotalEatingSpeedByAll 
+                                                     / (double)step;
         }
         
         foreach (var manager in _managers)
