@@ -36,7 +36,7 @@ public abstract class DiningPhilosophers
 
         philosopherManagers[names.Length - 1].SetRightFork(philosopherManagers[0].GetLeftFork());
 
-        var metricsCollector = new PhilosopherMetricsCollector(philosopherManagers, forks);
+        var metricsCollector = new DiscretePhilosopherMetricsCollector(philosopherManagers, forks);
         var strategy = new NativeStrategy(philosopherManagers, metricsCollector);
         try
         {

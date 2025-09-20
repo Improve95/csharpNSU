@@ -5,7 +5,7 @@ using static philosophers.action.PhilosopherActionType;
 
 namespace ManagementImpl.metric;
 
-public class PhilosopherMetricsCollector
+public class DiscretePhilosopherMetricsCollector
 {
     private readonly IDiscretePhilosopherManager[] _managers;
 
@@ -17,7 +17,7 @@ public class PhilosopherMetricsCollector
 
     private const int StepForSpeed = 1000;
 
-    public PhilosopherMetricsCollector(IDiscretePhilosopherManager[] managers, Fork[] forks)
+    public DiscretePhilosopherMetricsCollector(IDiscretePhilosopherManager[] managers, Fork[] forks)
     {
         _managers = managers;
         _forks = forks;

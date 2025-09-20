@@ -1,7 +1,7 @@
 using System.Text;
 using ManagementImpl.manager;
 using philosophers.objects.fork;
-using static ManagementImpl.metric.PhilosopherMetricsCollector;
+using static ManagementImpl.metric.DiscretePhilosopherMetricsCollector;
 
 namespace ManagementImpl.logger;
 

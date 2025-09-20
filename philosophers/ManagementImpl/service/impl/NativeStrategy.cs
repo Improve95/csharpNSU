@@ -19,11 +19,11 @@ public class NativeStrategy : IDiscreteStrategy
 
     private readonly DiscretePhilosopherManager[] _managers;
     
-    private readonly PhilosopherMetricsCollector _metricsCollector;
+    private readonly DiscretePhilosopherMetricsCollector _metricsCollector;
 
     public NativeStrategy(
         DiscretePhilosopherManager[] managers,
-        PhilosopherMetricsCollector metricsCollector)
+        DiscretePhilosopherMetricsCollector metricsCollector)
     {
         _managers = managers;
         _metricsCollector = metricsCollector;
@@ -38,8 +38,8 @@ public class NativeStrategy : IDiscreteStrategy
             if (!philosopherAction.TimeIsRemain())
             {
                 if (StartHungry(manager)) continue;
-                if (GetLeftFork(manager)) continue;
                 if (GetRightFork(manager)) continue;
+                if (GetLeftFork(manager)) continue;
                 if (StartEating(manager)) continue;
                 if (ReleaseForks(manager)) continue;
                 if (StartThinking(manager)) continue;

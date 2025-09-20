@@ -5,7 +5,7 @@ using ManagementImpl.metric;
 using Microsoft.Extensions.Logging;
 using philosophers.objects.fork;
 using strategy.service;
-using static ManagementImpl.metric.PhilosopherMetricsCollector;
+using static ManagementImpl.metric.DiscretePhilosopherMetricsCollector;
 
 namespace ManagementImpl.service.impl;
 
@@ -23,7 +23,7 @@ public class DiscreteCoordinator: IDiscreteCoordinator
 
     private DiscreteCoordinatorStrategy _strategy;
 
-    private readonly PhilosopherMetricsCollector _metricsCollector;
+    private readonly DiscretePhilosopherMetricsCollector _metricsCollector;
     
     public delegate void StartHungryEvent(DiscreteCoordinatorPhilosopherManager manager);
     public static event StartHungryEvent? StartHungryNotify;
@@ -44,7 +44,7 @@ public class DiscreteCoordinator: IDiscreteCoordinator
     {
         _managers = managers;
         _forks = forks;
-        _metricsCollector = new PhilosopherMetricsCollector(managers, forks);
+        _metricsCollector = new DiscretePhilosopherMetricsCollector(managers, forks);
         DiscreteCoordinatorPhilosopherManager.PhilosopherHungryNotify += OnPhilosopherHungryEvent;
     }
     
@@ -80,7 +80,6 @@ public class DiscreteCoordinator: IDiscreteCoordinator
         var whoAlreadyGot = fork.Owner;
         if (whoAlreadyGot == whoTryGet) return true;
         if (whoAlreadyGot != null && AbstractDiscretePhilosopherManager.PhilosopherIsOwnerBothFork(whoAlreadyGot)) return false;
-
         if (AbstractDiscretePhilosopherManager.PhilosopherIsOwnerBothFork(whoTryGet))
         {
             NotifyReleaseForkImmediately(_managers.First(man => man.Philosopher == whoAlreadyGot), fork);
