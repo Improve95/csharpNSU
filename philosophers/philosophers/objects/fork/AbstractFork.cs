@@ -4,13 +4,19 @@ using static philosophers.objects.fork.ForkStatus;
 
 namespace philosophers.objects.fork;
 
-public class Fork
+public abstract class AbstractFork
 {
     private static int _nextId;
     
     public Philosopher? Owner { get; private set; }
 
     public int Id { get; }
+    
+    protected AbstractFork()
+    {
+        Id = _nextId;
+        _nextId++;
+    }
     
     public ForkStatus Status { get; private set; }
     
@@ -24,12 +30,6 @@ public class Fork
     {
         Owner = null;
         Status = Available;
-    }
-    
-    public Fork()
-    {
-        Id = _nextId;
-        _nextId++;
     }
 
     public bool IsOwner(Philosopher philosopher)

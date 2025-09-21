@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace philosophers.action.impl;
 
-public class DiscretePhilosopherAction : AbstractPhilosopherAction
+public class DiscretePhilosopherAction : AbstractPhilosopherAction, IDiscretePhilosopherAction
 {
     
     private static readonly Dictionary<PhilosopherActionType, TimeRemainBorder> TimeRemainBorders = new()

@@ -8,4 +8,8 @@
         <RootNamespace>strategy</RootNamespace>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\philosophers\philosophers.csproj" />
+    </ItemGroup>
+
 </Project>

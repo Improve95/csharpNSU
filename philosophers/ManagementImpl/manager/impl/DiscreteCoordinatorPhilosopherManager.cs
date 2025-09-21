@@ -1,5 +1,6 @@
 using ManagementImpl.service.impl;
 using philosophers.action;
+using philosophers.action.impl;
 using philosophers.objects.fork;
 using philosophers.objects.philosophers;
 using static philosophers.action.PhilosopherActionType;
@@ -7,7 +8,7 @@ using static philosophers.action.PhilosopherActionType;
 namespace ManagementImpl.manager.impl;
 
 public class DiscreteCoordinatorPhilosopherManager: 
-    AbstractDiscretePhilosopherManager, 
+    AbstractPhilosopherManager, 
     IDiscreteCoordinatorPhilosopherManager
 {
     public delegate void PhilosopherHungryEvent(DiscreteCoordinatorPhilosopherManager manager);
@@ -37,7 +38,7 @@ public class DiscreteCoordinatorPhilosopherManager:
         SetAction(Hungry);
     }
     
-    private void OnGetForkEvent(DiscreteCoordinatorPhilosopherManager manager, Fork fork)
+    private void OnGetForkEvent(DiscreteCoordinatorPhilosopherManager manager, DiscreteFork fork)
     {
         if (manager != this) { return; }
         SetAction(Philosopher.LeftFork == fork
@@ -51,7 +52,7 @@ public class DiscreteCoordinatorPhilosopherManager:
         SetAction(Eating);
     }
 
-    private void OnReleaseForkImmediatelyEvent(DiscreteCoordinatorPhilosopherManager manager, Fork fork)
+    private void OnReleaseForkImmediatelyEvent(DiscreteCoordinatorPhilosopherManager manager, DiscreteFork fork)
     {
         if (manager != this) { return; }
         SetAction(Philosopher.LeftFork == fork 
@@ -63,5 +64,14 @@ public class DiscreteCoordinatorPhilosopherManager:
     {
         if (manager != this) { return; }
         SetAction(Thinking);
+    }
+    
+    public override void SetAction(PhilosopherActionType philosopherAction)
+    {
+        Philosopher.PhilosopherAction = new DiscretePhilosopherAction(philosopherAction);
+        if (philosopherAction == Eating)
+        {
+            Philosopher.IncreaseEating();
+        }
     }
 }

@@ -10,7 +10,6 @@ namespace ManagementImpl;
 
 public abstract class DiningPhilosophers
 {
-
     private static readonly ILoggerFactory LoggerFactory = Microsoft.Extensions.Logging.LoggerFactory.Create(
         builder => builder.AddConsole()
     );
@@ -22,11 +21,11 @@ public abstract class DiningPhilosophers
         var names = File.ReadAllLines("names.txt");
 
         var philosopherManagers = new DiscretePhilosopherManager[names.Length];
-        var forks = new Fork[names.Length];
-        var leftFork = new Fork();
+        var forks = new DiscreteFork[names.Length];
+        var leftFork = new DiscreteFork();
         for (var i = 0; i < names.Length; i++)
         {
-            var rightFork = new Fork();
+            var rightFork = new DiscreteFork();
             philosopherManagers[i] = new DiscretePhilosopherManager(
                 new Philosopher(names[i], leftFork, rightFork)
             );
@@ -59,11 +58,11 @@ public abstract class DiningPhilosophers
         var names = File.ReadAllLines("names.txt");
 
         var philosopherManagers = new DiscreteCoordinatorPhilosopherManager[names.Length];
-        var forks = new Fork[names.Length];
-        var leftFork = new Fork();
+        var forks = new DiscreteFork[names.Length];
+        var leftFork = new DiscreteFork();
         for (var i = 0; i < names.Length; i++)
         {
-            var rightFork = new Fork();
+            var rightFork = new DiscreteFork();
             philosopherManagers[i] = new DiscreteCoordinatorPhilosopherManager(
                 new Philosopher(names[i], leftFork, rightFork)
             );
@@ -90,5 +89,37 @@ public abstract class DiningPhilosophers
             var statLog = PhilosopherLogger.CreateStatLog(metrics);
             Logger.LogInformation(statLog);
         }
+    }
+
+    public static void SimulateConcurrent(bool enableLog)
+    {
+        var names = File.ReadAllLines("names.txt");
+
+        var managers = new ConcurrentPhilosopherManager[names.Length];
+        var forks = new DiscreteFork[names.Length];
+        var leftFork = new DiscreteFork();
+        var strategy = new ConcurrentStrategy();
+        for (var i = 0; i < names.Length; i++)
+        {
+            var rightFork = new DiscreteFork();
+            managers[i] = new ConcurrentPhilosopherManager(
+                new Philosopher(names[i], leftFork, rightFork),
+                strategy
+            );
+            forks[i % names.Length] = leftFork;
+            leftFork = rightFork;
+        }
+
+        managers[names.Length - 1].SetRightFork(managers[0].GetLeftFork());
+        
+        var threads = managers
+            .Select(manager => new Thread(manager.Process))
+            .ToList();
+
+        const int simulationTime = 30 * 1000;
+        Thread.Sleep(simulationTime);
+        
+        foreach (var manager in managers) manager.Stop();
+        foreach (var philosopherThread in threads) philosopherThread.Interrupt();
     }
 }

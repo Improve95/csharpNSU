@@ -1,11 +1,10 @@
 using philosophers.action;
-using philosophers.action.impl;
 using philosophers.objects.fork;
 using philosophers.objects.philosophers;
 
 namespace ManagementImpl.manager;
 
-public abstract class AbstractDiscretePhilosopherManager(Philosopher philosopher): IDiscretePhilosopherManager
+public abstract class AbstractPhilosopherManager(Philosopher philosopher): IPhilosopherManager
 {
     public Philosopher Philosopher { get; } = philosopher;
     
@@ -24,38 +23,29 @@ public abstract class AbstractDiscretePhilosopherManager(Philosopher philosopher
         return Philosopher.TotalEating;
     }
     
-    public Fork GetLeftFork()
+    public DiscreteFork GetLeftFork()
     {
         return Philosopher.LeftFork;
     }
     
-    public Fork GetRightFork()
+    public DiscreteFork GetRightFork()
     {
         return Philosopher.RightFork;
     }
     
-    public void SetRightFork(Fork fork)
+    public void SetRightFork(DiscreteFork fork)
     {
         Philosopher.RightFork = fork;
     }
     
-    public DiscretePhilosopherAction GetAction()
+    public IPhilosopherAction GetAction()
     {
-        return (DiscretePhilosopherAction) Philosopher.PhilosopherAction;
+        return Philosopher.PhilosopherAction;
     }
 
-    public static DiscretePhilosopherAction GetAction(IDiscretePhilosopherManager manager)
+    public static IPhilosopherAction GetAction(IPhilosopherManager manager)
     {
         return manager.GetAction();
-    }
-    
-    public void SetAction(PhilosopherActionType philosopherAction)
-    {
-        Philosopher.PhilosopherAction = new DiscretePhilosopherAction(philosopherAction);
-        if (philosopherAction == PhilosopherActionType.Eating)
-        {
-            Philosopher.IncreaseEating();
-        }
     }
 
     public PhilosopherActionType GetActionType()
@@ -63,7 +53,7 @@ public abstract class AbstractDiscretePhilosopherManager(Philosopher philosopher
         return GetAction().ActionType;
     }
 
-    public static PhilosopherActionType GetActionType(IDiscretePhilosopherManager manager)
+    public static PhilosopherActionType GetActionType(IPhilosopherManager manager)
     {
         return manager.GetAction().ActionType;
     }
@@ -79,4 +69,6 @@ public abstract class AbstractDiscretePhilosopherManager(Philosopher philosopher
         return philosopher.LeftFork.IsOwner(philosopher) &&
                philosopher.RightFork.IsOwner(philosopher);
     }
+
+    public abstract void SetAction(PhilosopherActionType philosopherAction);
 }

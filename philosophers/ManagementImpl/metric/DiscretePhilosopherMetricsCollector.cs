@@ -7,9 +7,9 @@ namespace ManagementImpl.metric;
 
 public class DiscretePhilosopherMetricsCollector
 {
-    private readonly IDiscretePhilosopherManager[] _managers;
+    private readonly IPhilosopherManager[] _managers;
 
-    private readonly Fork[] _forks;
+    private readonly DiscreteFork[] _forks;
 
     private readonly IDictionary<int, PhilosopherStat> _philosopherStats = new Dictionary<int, PhilosopherStat>();
     
@@ -17,7 +17,7 @@ public class DiscretePhilosopherMetricsCollector
 
     private const int StepForSpeed = 1000;
 
-    public DiscretePhilosopherMetricsCollector(IDiscretePhilosopherManager[] managers, Fork[] forks)
+    public DiscretePhilosopherMetricsCollector(IPhilosopherManager[] managers, DiscreteFork[] forks)
     {
         _managers = managers;
         _forks = forks;
@@ -131,20 +131,20 @@ public class DiscretePhilosopherMetricsCollector
     }
     
     public record FinalStat(
-        IDiscretePhilosopherManager[] Managers,
-        Fork[] Forks,
+        IPhilosopherManager[] Managers,
+        DiscreteFork[] Forks,
         List<double> MiddleEatingSpeeds,
         double MiddleEatingSpeedsByAll,
         List<double> MiddleHungryTimes,
         double MiddleHungryTimesByAll,
         int MaxHungryWaitingTime,
-        IDiscretePhilosopherManager? TheMostHungry,
+        IPhilosopherManager? TheMostHungry,
         List<List<ForkStatusesTime>> ForksStatusesTimes);
     
     private class PhilosopherStat
     {
         public static int MaxHungryWaitingTime { get; set; }
-        public static IDiscretePhilosopherManager? TheMostHungry { get; set; }
+        public static IPhilosopherManager? TheMostHungry { get; set; }
         public static int TotalHungryTimeByAll { get; set; }
         public static int TotalHungryCountByAll { get; set; }
         public static double MiddleHungryTimeByAll { get; set; }

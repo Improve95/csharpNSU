@@ -8,13 +8,13 @@ namespace ManagementImpl.logger;
 public abstract class PhilosopherLogger
 {
 
-    public static string CreateLog(int step, IDiscretePhilosopherManager[] philosopherManagers) 
+    public static string CreateLog(int step, IPhilosopherManager[] philosopherManagers) 
     {
         var sb = new StringBuilder();
         sb.Append($"===== STEP {step} =====\n");
         sb.Append("Philosophers:\n");
 
-        var forks = new HashSet<Fork>();
+        var forks = new HashSet<DiscreteFork>();
         
         foreach (var manager in philosopherManagers)
         {
@@ -74,7 +74,7 @@ public abstract class PhilosopherLogger
         sb.AppendLine("Статистика вилок:");
         for (var i = 0; i < stat.Forks.Length; i++)
         {
-            Fork fork = stat.Forks[i];
+            DiscreteFork fork = stat.Forks[i];
             sb.AppendLine($"Вилка id-{fork.Id}:");
             if (i < stat.ForksStatusesTimes.Count)
             {

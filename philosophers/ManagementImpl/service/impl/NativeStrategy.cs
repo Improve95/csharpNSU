@@ -3,6 +3,7 @@ using ManagementImpl.manager.impl;
 using ManagementImpl.metric;
 using Microsoft.Extensions.Logging;
 using philosophers.action;
+using philosophers.action.impl;
 using strategy.service;
 using static philosophers.objects.fork.ForkStatus;
 
@@ -44,8 +45,8 @@ public class NativeStrategy : IDiscreteStrategy
                 if (ReleaseForks(manager)) continue;
                 if (StartThinking(manager)) continue;
             }
-            
-            philosopherAction.ReduceTime();
+
+            ((DiscretePhilosopherAction)philosopherAction).ReduceTime();
             if (manager.GetAction().TimeRemain < 0)
             {
                 tooMuchWaitingCounter++;

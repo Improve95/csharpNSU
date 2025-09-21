@@ -3,6 +3,7 @@ using ManagementImpl.manager;
 using ManagementImpl.manager.impl;
 using ManagementImpl.metric;
 using Microsoft.Extensions.Logging;
+using philosophers.action.impl;
 using philosophers.objects.fork;
 using strategy.service;
 using static ManagementImpl.metric.DiscretePhilosopherMetricsCollector;
@@ -19,7 +20,7 @@ public class DiscreteCoordinator: IDiscreteCoordinator
     
     private readonly DiscreteCoordinatorPhilosopherManager[] _managers;
 
-    private readonly Fork[] _forks;
+    private readonly DiscreteFork[] _forks;
 
     private DiscreteCoordinatorStrategy _strategy;
 
@@ -28,19 +29,19 @@ public class DiscreteCoordinator: IDiscreteCoordinator
     public delegate void StartHungryEvent(DiscreteCoordinatorPhilosopherManager manager);
     public static event StartHungryEvent? StartHungryNotify;
     
-    public delegate void GetForkEvent(DiscreteCoordinatorPhilosopherManager manager, Fork fork);
+    public delegate void GetForkEvent(DiscreteCoordinatorPhilosopherManager manager, DiscreteFork fork);
     public static event GetForkEvent? GetForkNotify;
     
     public delegate void StartEatingEvent(DiscreteCoordinatorPhilosopherManager manager);
     public static event StartEatingEvent? StartEatingNotify;
     
-    public delegate void ReleaseForkImmediatelyEvent(DiscreteCoordinatorPhilosopherManager manager, Fork fork);
+    public delegate void ReleaseForkImmediatelyEvent(DiscreteCoordinatorPhilosopherManager manager, DiscreteFork fork);
     public static event ReleaseForkImmediatelyEvent? ReleaseForkImmediatelyNotify;
     
     public delegate void StartThinkingEvent(DiscreteCoordinatorPhilosopherManager manager);
     public static event StartThinkingEvent? StartThinkingNotify;
     
-    public DiscreteCoordinator(DiscreteCoordinatorPhilosopherManager[] managers, Fork[] forks) 
+    public DiscreteCoordinator(DiscreteCoordinatorPhilosopherManager[] managers, DiscreteFork[] forks) 
     {
         _managers = managers;
         _forks = forks;
@@ -60,7 +61,7 @@ public class DiscreteCoordinator: IDiscreteCoordinator
 
     public void ReduceTime(DiscreteCoordinatorPhilosopherManager manager)
     {
-        manager.GetAction().ReduceTime();
+        ((DiscretePhilosopherAction)manager.GetAction()).ReduceTime();
     }
     
     public void CheckPhilosopherState(DiscreteCoordinatorPhilosopherManager manager)
@@ -72,15 +73,15 @@ public class DiscreteCoordinator: IDiscreteCoordinator
         manager.CheckPhilosopherHungry();
     }
 
-    public bool TryGetFork(DiscreteCoordinatorPhilosopherManager manager, Fork fork)
+    public bool TryGetFork(DiscreteCoordinatorPhilosopherManager manager, DiscreteFork fork)
     {
         if (manager.GetAction().TimeIsRemain()) return false;
         
         var whoTryGet = manager.Philosopher;
         var whoAlreadyGot = fork.Owner;
         if (whoAlreadyGot == whoTryGet) return true;
-        if (whoAlreadyGot != null && AbstractDiscretePhilosopherManager.PhilosopherIsOwnerBothFork(whoAlreadyGot)) return false;
-        if (AbstractDiscretePhilosopherManager.PhilosopherIsOwnerBothFork(whoTryGet))
+        if (whoAlreadyGot != null && AbstractPhilosopherManager.PhilosopherIsOwnerBothFork(whoAlreadyGot)) return false;
+        if (AbstractPhilosopherManager.PhilosopherIsOwnerBothFork(whoTryGet))
         {
             NotifyReleaseForkImmediately(_managers.First(man => man.Philosopher == whoAlreadyGot), fork);
         }
@@ -95,7 +96,7 @@ public class DiscreteCoordinator: IDiscreteCoordinator
         StartHungryNotify?.Invoke(manager);
     }
     
-    public bool NotifyGetFork(DiscreteCoordinatorPhilosopherManager manager, Fork fork)
+    public bool NotifyGetFork(DiscreteCoordinatorPhilosopherManager manager, DiscreteFork fork)
     {
         fork.SetOwner(manager.Philosopher);
         GetForkNotify?.Invoke(manager, fork);
@@ -107,7 +108,7 @@ public class DiscreteCoordinator: IDiscreteCoordinator
         StartEatingNotify?.Invoke(manager);
     }
 
-    public bool NotifyReleaseForkImmediately(DiscreteCoordinatorPhilosopherManager manager, Fork fork)
+    public bool NotifyReleaseForkImmediately(DiscreteCoordinatorPhilosopherManager manager, DiscreteFork fork)
     {
         fork.DropOwner();
         ReleaseForkImmediatelyNotify?.Invoke(manager, fork);

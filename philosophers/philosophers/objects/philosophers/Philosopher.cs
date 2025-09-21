@@ -12,15 +12,15 @@ public class Philosopher
     
     public IPhilosopherAction PhilosopherAction { get; set; }
 
-    public Fork LeftFork { get; }
+    public DiscreteFork LeftFork { get; }
 
-    public Fork RightFork { get; set; }
+    public DiscreteFork RightFork { get; set; }
     
     public int TotalEating { get; private set; }
     
     private static int _nextId;
     
-    public Philosopher(string name, Fork leftFork, Fork rightFork)
+    public Philosopher(string name, DiscreteFork leftFork, DiscreteFork rightFork)
     {
         Id = _nextId;
         Name = name;

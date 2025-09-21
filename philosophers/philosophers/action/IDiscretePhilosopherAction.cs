@@ -1,8 +1,7 @@
 namespace philosophers.action;
 
-public interface IPhilosopherAction
+public interface IDiscretePhilosopherAction
 {
-    int TimeRemain { get; }
     PhilosopherActionType ActionType { get; }
     bool TimeIsRemain();
 }
