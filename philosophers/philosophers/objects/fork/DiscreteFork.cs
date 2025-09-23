@@ -1,6 +1,6 @@
 namespace philosophers.objects.fork;
 
-public class DiscreteFork : AbstractFork
+public class DiscreteFork : AbstractFork, IFork
 {
     
 }

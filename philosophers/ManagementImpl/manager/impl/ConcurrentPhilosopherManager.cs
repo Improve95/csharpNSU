@@ -15,16 +15,14 @@ public class ConcurrentPhilosopherManager(Philosopher philosopher, ConcurrentStr
     {
         while (ContinueWork)
         {
-            Thread.Sleep(GetAction().TimeRemain);
+            Thread.Sleep(GetAction().TimeRemain * 100);
 
             PhilosopherActionType? newAction = null;
             while (newAction == null)
             {
+                // Console.WriteLine($"{Philosopher.Name} try get new act");
                 newAction = strategy.GetNewAction(this);
-                if (newAction == null)
-                {
-                    
-                }
+                // Console.WriteLine($"{Philosopher.Name} got new act: {newAction}");
             }
             
             SetAction(newAction.Value);

@@ -23,17 +23,17 @@ public abstract class AbstractPhilosopherManager(Philosopher philosopher): IPhil
         return Philosopher.TotalEating;
     }
     
-    public DiscreteFork GetLeftFork()
+    public IFork GetLeftFork()
     {
         return Philosopher.LeftFork;
     }
     
-    public DiscreteFork GetRightFork()
+    public IFork GetRightFork()
     {
         return Philosopher.RightFork;
     }
     
-    public void SetRightFork(DiscreteFork fork)
+    public void SetRightFork(IFork fork)
     {
         Philosopher.RightFork = fork;
     }

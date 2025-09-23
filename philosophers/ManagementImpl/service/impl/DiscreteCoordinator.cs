@@ -29,13 +29,13 @@ public class DiscreteCoordinator: IDiscreteCoordinator
     public delegate void StartHungryEvent(DiscreteCoordinatorPhilosopherManager manager);
     public static event StartHungryEvent? StartHungryNotify;
     
-    public delegate void GetForkEvent(DiscreteCoordinatorPhilosopherManager manager, DiscreteFork fork);
+    public delegate void GetForkEvent(DiscreteCoordinatorPhilosopherManager manager, IFork fork);
     public static event GetForkEvent? GetForkNotify;
     
     public delegate void StartEatingEvent(DiscreteCoordinatorPhilosopherManager manager);
     public static event StartEatingEvent? StartEatingNotify;
     
-    public delegate void ReleaseForkImmediatelyEvent(DiscreteCoordinatorPhilosopherManager manager, DiscreteFork fork);
+    public delegate void ReleaseForkImmediatelyEvent(DiscreteCoordinatorPhilosopherManager manager, IFork fork);
     public static event ReleaseForkImmediatelyEvent? ReleaseForkImmediatelyNotify;
     
     public delegate void StartThinkingEvent(DiscreteCoordinatorPhilosopherManager manager);
@@ -73,7 +73,7 @@ public class DiscreteCoordinator: IDiscreteCoordinator
         manager.CheckPhilosopherHungry();
     }
 
-    public bool TryGetFork(DiscreteCoordinatorPhilosopherManager manager, DiscreteFork fork)
+    public bool TryGetFork(DiscreteCoordinatorPhilosopherManager manager, IFork fork)
     {
         if (manager.GetAction().TimeIsRemain()) return false;
         
@@ -83,7 +83,9 @@ public class DiscreteCoordinator: IDiscreteCoordinator
         if (whoAlreadyGot != null && AbstractPhilosopherManager.PhilosopherIsOwnerBothFork(whoAlreadyGot)) return false;
         if (AbstractPhilosopherManager.PhilosopherIsOwnerBothFork(whoTryGet))
         {
-            NotifyReleaseForkImmediately(_managers.First(man => man.Philosopher == whoAlreadyGot), fork);
+            NotifyReleaseForkImmediately(
+                _managers.First(man => man.Philosopher == whoAlreadyGot),
+                fork);
         }
         
         NotifyGetFork(manager, fork);
@@ -96,7 +98,7 @@ public class DiscreteCoordinator: IDiscreteCoordinator
         StartHungryNotify?.Invoke(manager);
     }
     
-    public bool NotifyGetFork(DiscreteCoordinatorPhilosopherManager manager, DiscreteFork fork)
+    public bool NotifyGetFork(DiscreteCoordinatorPhilosopherManager manager, IFork fork)
     {
         fork.SetOwner(manager.Philosopher);
         GetForkNotify?.Invoke(manager, fork);
@@ -108,7 +110,7 @@ public class DiscreteCoordinator: IDiscreteCoordinator
         StartEatingNotify?.Invoke(manager);
     }
 
-    public bool NotifyReleaseForkImmediately(DiscreteCoordinatorPhilosopherManager manager, DiscreteFork fork)
+    public bool NotifyReleaseForkImmediately(DiscreteCoordinatorPhilosopherManager manager, IFork fork)
     {
         fork.DropOwner();
         ReleaseForkImmediatelyNotify?.Invoke(manager, fork);

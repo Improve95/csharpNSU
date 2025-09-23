@@ -1,5 +1,6 @@
 using ManagementImpl.manager.impl;
 using philosophers.action;
+using philosophers.objects.fork;
 using strategy.service;
 using static philosophers.action.PhilosopherActionType;
 
@@ -15,20 +16,34 @@ public class ConcurrentStrategy : IConcurrentStrategy
             case Thinking:
                 return Hungry;
             case Hungry or GetRightFork:
-                // возьми левую вилку если можешь
+                TakeFork((IConcurrentFork)manager.GetLeftFork(), manager);
                 break;
             case GetLeftFork:
-                // возьми правую вилку если можешь
+                TakeFork((IConcurrentFork)manager.GetRightFork(), manager);
                 break;
             case Eating:
+                var leftFork = (IConcurrentFork)manager.GetLeftFork();
+                var rightFork = (IConcurrentFork)manager.GetRightFork();
+            
+                leftFork.DropOwner();
+                leftFork.Mutex.ReleaseMutex();
+            
+                rightFork.DropOwner();
+                rightFork.Mutex.ReleaseMutex();
                 return Thinking;
         }
-
+        
         if (manager.PhilosopherIsOwnerBothFork())
         {
             return Eating;
         }
         
         return null;
+    }
+
+    private void TakeFork(IConcurrentFork fork, ConcurrentPhilosopherManager manager)
+    {
+        fork.Mutex.WaitOne();
+        fork.SetOwner(manager.Philosopher);
     }
 }

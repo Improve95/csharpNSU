@@ -10,8 +10,8 @@ public interface IPhilosopherManager
     int GetPhilosopherId();
     string GetPhilosopherName();
     int GetTotalEating();
-    DiscreteFork GetLeftFork();
-    DiscreteFork GetRightFork();
+    IFork GetLeftFork();
+    IFork GetRightFork();
     IPhilosopherAction GetAction();
     void SetAction(PhilosopherActionType philosopherAction);
     bool PhilosopherIsOwnerBothFork();

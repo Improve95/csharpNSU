@@ -38,7 +38,7 @@ public class DiscreteCoordinatorPhilosopherManager:
         SetAction(Hungry);
     }
     
-    private void OnGetForkEvent(DiscreteCoordinatorPhilosopherManager manager, DiscreteFork fork)
+    private void OnGetForkEvent(DiscreteCoordinatorPhilosopherManager manager, IFork fork)
     {
         if (manager != this) { return; }
         SetAction(Philosopher.LeftFork == fork
@@ -52,7 +52,7 @@ public class DiscreteCoordinatorPhilosopherManager:
         SetAction(Eating);
     }
 
-    private void OnReleaseForkImmediatelyEvent(DiscreteCoordinatorPhilosopherManager manager, DiscreteFork fork)
+    private void OnReleaseForkImmediatelyEvent(DiscreteCoordinatorPhilosopherManager manager, IFork fork)
     {
         if (manager != this) { return; }
         SetAction(Philosopher.LeftFork == fork 

@@ -7,7 +7,7 @@ public class ConcurrentPhilosopherAction: AbstractPhilosopherAction, IConcurrent
 {
     private static readonly Dictionary<PhilosopherActionType, TimeRemainBorder> TimeRemainBorders = new()
     {
-        { PhilosopherActionType.Thinking, new TimeRemainBorder(30, 100) },
+        { PhilosopherActionType.Thinking, new TimeRemainBorder(30, 200) },
         { PhilosopherActionType.Eating, new TimeRemainBorder(40, 50) },
         { PhilosopherActionType.GetLeftFork, new TimeRemainBorder(20, 20) },
         { PhilosopherActionType.GetRightFork, new TimeRemainBorder(20, 20) },

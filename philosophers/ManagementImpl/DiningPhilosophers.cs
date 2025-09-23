@@ -91,17 +91,17 @@ public abstract class DiningPhilosophers
         }
     }
 
-    public static void SimulateConcurrent(bool enableLog)
+    public static async Task SimulateConcurrent(bool enableLog)
     {
         var names = File.ReadAllLines("names.txt");
 
         var managers = new ConcurrentPhilosopherManager[names.Length];
-        var forks = new DiscreteFork[names.Length];
-        var leftFork = new DiscreteFork();
+        var forks = new ConcurrentFork[names.Length];
+        var leftFork = new ConcurrentFork();
         var strategy = new ConcurrentStrategy();
         for (var i = 0; i < names.Length; i++)
         {
-            var rightFork = new DiscreteFork();
+            var rightFork = new ConcurrentFork();
             managers[i] = new ConcurrentPhilosopherManager(
                 new Philosopher(names[i], leftFork, rightFork),
                 strategy
@@ -116,9 +116,31 @@ public abstract class DiningPhilosophers
             .Select(manager => new Thread(manager.Process))
             .ToList();
 
+
+        ConcurrentLogger? concurrentLogger = null;
+        Thread? loggerThread = null;
+
+        enableLog = true;
+        if (enableLog)
+        {
+            concurrentLogger = new ConcurrentLogger(managers, forks, 200);
+            loggerThread = new Thread(() => concurrentLogger.Logging());
+        }
+
+        foreach (var thread in threads) thread.Start();
+        if (enableLog)
+        {
+            loggerThread?.Start();
+        }
+
         const int simulationTime = 30 * 1000;
         Thread.Sleep(simulationTime);
-        
+
+        if (enableLog)
+        {
+            concurrentLogger?.Stop();
+            loggerThread?.Interrupt();
+        }
         foreach (var manager in managers) manager.Stop();
         foreach (var philosopherThread in threads) philosopherThread.Interrupt();
     }

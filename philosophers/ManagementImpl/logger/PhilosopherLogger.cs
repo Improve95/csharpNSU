@@ -7,14 +7,13 @@ namespace ManagementImpl.logger;
 
 public abstract class PhilosopherLogger
 {
-
     public static string CreateLog(int step, IPhilosopherManager[] philosopherManagers) 
     {
         var sb = new StringBuilder();
         sb.Append($"===== STEP {step} =====\n");
         sb.Append("Philosophers:\n");
 
-        var forks = new HashSet<DiscreteFork>();
+        var forks = new HashSet<IFork>();
         
         foreach (var manager in philosopherManagers)
         {
@@ -41,7 +40,7 @@ public abstract class PhilosopherLogger
         
         return sb.ToString();
     }
-
+    
     public static string CreateStatLog(FinalStat stat)
     {
         var sb = new StringBuilder();
@@ -87,5 +86,4 @@ public abstract class PhilosopherLogger
         sb.AppendLine("===== Конец статистики =====");
         return sb.ToString();
     }
-
 }
