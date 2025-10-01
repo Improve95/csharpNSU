@@ -10,8 +10,8 @@ namespace ManagementImpl.service.impl;
 
 public class ConcurrentStrategy : IConcurrentStrategy
 {
-    private IDictionary<IConcurrentFork, ConcurrentPhilosopherManager> _waitingFork = 
-        new ConcurrentDictionary<IConcurrentFork, ConcurrentPhilosopherManager>();
+    private readonly IDictionary<int, ConcurrentPhilosopherManager> _waitingFork = 
+        new ConcurrentDictionary<int, ConcurrentPhilosopherManager>();
     
     public (PhilosopherActionType? newAction, bool canStartNewAction) GetNewAction(ConcurrentPhilosopherManager manager)
     {
@@ -23,7 +23,6 @@ public class ConcurrentStrategy : IConcurrentStrategy
 
         if (manager.PhilosopherIsOwnerBothFork() && actionType is Hungry or GetLeftFork or GetRightFork)
         {
-            // Console.WriteLine("start eating");
             return (Eating, true);
         }
         
@@ -34,10 +33,10 @@ public class ConcurrentStrategy : IConcurrentStrategy
                 return (GetLeftFork, true);
             }
 
-            if (TryGetFork2((ConcurrentFork)manager.GetRightFork(), manager))
-            {
-                return (GetRightFork, true);
-            }
+            // if (TryGetFork2((ConcurrentFork)manager.GetRightFork(), manager))
+            // {
+            //     return (GetRightFork, true);
+            // }
 
             return (GetLeftFork, false);
         }
@@ -49,10 +48,10 @@ public class ConcurrentStrategy : IConcurrentStrategy
                 return (GetRightFork, true);
             }
             
-            if (TryGetFork2((ConcurrentFork)manager.GetLeftFork(), manager))
-            {
-                return (GetLeftFork, true);
-            }
+            // if (TryGetFork2((ConcurrentFork)manager.GetLeftFork(), manager))
+            // {
+            //     return (GetLeftFork, true);
+            // }
             
             return (GetRightFork, false);
         }
@@ -60,13 +59,15 @@ public class ConcurrentStrategy : IConcurrentStrategy
         if (actionType == Eating)
         {
             var leftFork = (IConcurrentFork)manager.GetLeftFork();
+            leftFork.Mutex.WaitOne();
             leftFork.DropOwner();
-            // leftFork.Mutex.ReleaseMutex();
+            leftFork.Mutex.ReleaseMutex();
             WakeUpSleepingPhilosophers(leftFork);
             
             var rightFork = (IConcurrentFork)manager.GetRightFork();
+            rightFork.Mutex.WaitOne();
             rightFork.DropOwner();
-            // rightFork.Mutex.ReleaseMutex();
+            rightFork.Mutex.ReleaseMutex();
             WakeUpSleepingPhilosophers(rightFork);
             
             return (Thinking, true);
@@ -77,15 +78,23 @@ public class ConcurrentStrategy : IConcurrentStrategy
 
     public void AddWaitingForkRelease(IConcurrentFork fork, ConcurrentPhilosopherManager manager)
     {
-        _waitingFork[fork] = manager;
+        _waitingFork[fork.Id] = manager;
     }
 
     private void WakeUpSleepingPhilosophers(IConcurrentFork fork)
     {
-        if (_waitingFork.TryGetValue(fork, out var manager))
-        { 
+        if (_waitingFork.TryGetValue(fork.Id, out var manager))
+        {
+            /*if (manager.GetTotalEating() > 15)
+            {
+                foreach (var el in _waitingFork)
+                {
+                    Console.WriteLine($"{el.Key}: {el.Value.GetPhilosopherName()}");
+                }
+            }*/
+            
             manager.WakeUp();
-            _waitingFork.Remove(fork);
+            _waitingFork.Remove(fork.Id);
         }
     }
     
@@ -96,20 +105,26 @@ public class ConcurrentStrategy : IConcurrentStrategy
         
         var whoTryGet = manager.Philosopher;
         var whoAlreadyGot = fork.Owner;
-        if (whoAlreadyGot == whoTryGet) return true;
+        // if (whoAlreadyGot == whoTryGet) return true;
         if (whoAlreadyGot != null && AbstractPhilosopherManager.PhilosopherIsOwnerBothFork(whoAlreadyGot))
         {
             forkMutex.ReleaseMutex();
             return false;
-        } 
+        }
 
-        if (AbstractPhilosopherManager.PhilosopherIsOwnerAtLeastOneFork(whoTryGet))
+        if (whoAlreadyGot != null && whoAlreadyGot.HungryStartTime < whoTryGet.HungryStartTime)
+        {
+            forkMutex.ReleaseMutex();
+            return false;
+        }
+        
+        /*if (AbstractPhilosopherManager.PhilosopherIsOwnerAtLeastOneFork(whoTryGet))
         {
             fork.DropOwner();
-        }
+        }*/
         /*else
         {
-            Console.WriteLine("here2");
+            // Console.WriteLine("here2");
             forkMutex.ReleaseMutex();
             return false;
         }*/
@@ -120,7 +135,7 @@ public class ConcurrentStrategy : IConcurrentStrategy
         return true;
     }
     
-    private bool TryGetFork(IConcurrentFork fork, ConcurrentPhilosopherManager manager)
+    /*private bool TryGetFork(IConcurrentFork fork, ConcurrentPhilosopherManager manager)
     {
         var whoTryGet = manager.Philosopher;
         var whoAlreadyGot = fork.Owner;
@@ -146,5 +161,5 @@ public class ConcurrentStrategy : IConcurrentStrategy
         fork.Mutex.WaitOne();
         // Console.WriteLine($"taken {manager.GetPhilosopherName()} fork {fork.Id}");
         fork.SetOwner(manager.Philosopher);
-    }
+    }*/
 }

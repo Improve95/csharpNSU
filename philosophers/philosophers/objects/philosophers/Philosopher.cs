@@ -20,6 +20,8 @@ public class Philosopher
     
     private static int _nextId;
     
+    public int HungryStartTime { get; set; }
+    
     public Philosopher(string name, IFork leftFork, IFork rightFork)
     {
         Id = _nextId;

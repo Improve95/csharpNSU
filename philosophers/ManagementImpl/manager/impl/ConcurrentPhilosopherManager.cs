@@ -1,7 +1,6 @@
 using ManagementImpl.service.impl;
 using philosophers.action;
 using philosophers.action.impl;
-using philosophers.objects.fork;
 using philosophers.objects.philosophers;
 using static philosophers.action.PhilosopherActionType;
 
@@ -12,9 +11,7 @@ public class ConcurrentPhilosopherManager(Philosopher philosopher, ConcurrentStr
     IConcurrentPhilosopherManager
 {
     private bool ContinueWork { get; set; } = true;
-
-    private int _hungryStartTime = DateTimeOffset.Now.Millisecond;
-
+    
     private readonly AutoResetEvent _event = new(false);
     
     public void Process()
@@ -23,7 +20,7 @@ public class ConcurrentPhilosopherManager(Philosopher philosopher, ConcurrentStr
         V2();
     }
 
-    private void V1()
+    /*private void V1()
     {
         while (ContinueWork)
         {
@@ -39,9 +36,9 @@ public class ConcurrentPhilosopherManager(Philosopher philosopher, ConcurrentStr
             }
             
             SetAction(newAction.Value);
-            if (newAction == Hungry) _hungryStartTime = DateTimeOffset.Now.Millisecond;
+            // if (newAction == Hungry) HungryStartTime = DateTimeOffset.Now.Millisecond;
         }
-    }
+    }*/
 
     private void V2()
     {
@@ -59,26 +56,31 @@ public class ConcurrentPhilosopherManager(Philosopher philosopher, ConcurrentStr
                 canStartNewAction = res.canStartNewAction;
                 // Console.WriteLine($"{Philosopher.Name} got new act: {newAction}, status: {canStartNewAction}");
                 
-                if (newAction == Hungry) _hungryStartTime = DateTimeOffset.Now.Millisecond;
+                if (newAction == Hungry) SetStartHungryTime(DateTimeOffset.Now.Millisecond);
                 if (canStartNewAction) break;
 
-                if (newAction == PhilosopherActionType.GetLeftFork)
-                {
-                    strategy.AddWaitingForkRelease((IConcurrentFork)GetLeftFork(), this);
-                }
-                else if (newAction == PhilosopherActionType.GetRightFork)
-                {
-                    strategy.AddWaitingForkRelease((IConcurrentFork)GetRightFork(), this);
-                }
+                // strategy.AddWaitingForkRelease((IConcurrentFork)GetLeftFork(), this);
+                // strategy.AddWaitingForkRelease((IConcurrentFork)GetRightFork(), this);
                 
-                _event.WaitOne();
+                // _event.WaitOne();
             }
             SetAction(newAction.Value);
         }
     }
+
+    public int GetStartHungryTime()
+    {
+        return Philosopher.HungryStartTime;
+    }
+    
+    private void SetStartHungryTime(int startHungryTime)
+    {
+        Philosopher.HungryStartTime = startHungryTime;
+    }
     
     public void WakeUp()
     {
+        // Console.WriteLine($"wake up {Philosopher.Name}");
         _event.Set();
     }
     
