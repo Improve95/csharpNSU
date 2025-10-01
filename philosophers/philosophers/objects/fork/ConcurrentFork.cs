@@ -4,5 +4,5 @@ namespace philosophers.objects.fork;
 
 public class ConcurrentFork : AbstractFork, IConcurrentFork
 {
-    public Mutex Mutex { get; private set; } = new Mutex();
+    public Mutex Mutex { get; } = new();
 }

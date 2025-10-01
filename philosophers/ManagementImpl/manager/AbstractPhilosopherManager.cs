@@ -70,5 +70,11 @@ public abstract class AbstractPhilosopherManager(Philosopher philosopher): IPhil
                philosopher.RightFork.IsOwner(philosopher);
     }
 
+    public static bool PhilosopherIsOwnerAtLeastOneFork(Philosopher philosopher)
+    {
+        return philosopher.LeftFork.IsOwner(philosopher) ||
+               philosopher.RightFork.IsOwner(philosopher);
+    }
+    
     public abstract void SetAction(PhilosopherActionType philosopherAction);
 }

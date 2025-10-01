@@ -120,7 +120,7 @@ public abstract class DiningPhilosophers
         ConcurrentLogger? concurrentLogger = null;
         Thread? loggerThread = null;
 
-        enableLog = true;
+        enableLog = false;
         if (enableLog)
         {
             concurrentLogger = new ConcurrentLogger(managers, forks, 200);
@@ -128,6 +128,7 @@ public abstract class DiningPhilosophers
         }
 
         foreach (var thread in threads) thread.Start();
+        // threads[0].Start();
         if (enableLog)
         {
             loggerThread?.Start();
