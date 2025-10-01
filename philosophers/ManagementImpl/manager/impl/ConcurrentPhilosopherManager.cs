@@ -1,7 +1,9 @@
 using ManagementImpl.service.impl;
 using philosophers.action;
 using philosophers.action.impl;
+using philosophers.objects.fork;
 using philosophers.objects.philosophers;
+using static philosophers.action.PhilosopherActionType;
 
 namespace ManagementImpl.manager.impl;
 
@@ -18,6 +20,7 @@ public class ConcurrentPhilosopherManager(Philosopher philosopher, ConcurrentStr
     public void Process()
     {
         // V1();
+        V2();
     }
 
     private void V1()
@@ -31,12 +34,12 @@ public class ConcurrentPhilosopherManager(Philosopher philosopher, ConcurrentStr
             while (newAction == null)
             {
                 Console.WriteLine($"{Philosopher.Name} try get new act");
-                newAction = strategy.GetNewAction(this);
+                // newAction = strategy.GetNewAction(this);
                 Console.WriteLine($"{Philosopher.Name} got new act: {newAction}");
             }
             
             SetAction(newAction.Value);
-            if (newAction == PhilosopherActionType.Hungry) _hungryStartTime = DateTimeOffset.Now.Millisecond;
+            if (newAction == Hungry) _hungryStartTime = DateTimeOffset.Now.Millisecond;
         }
     }
 
@@ -47,17 +50,33 @@ public class ConcurrentPhilosopherManager(Philosopher philosopher, ConcurrentStr
             Thread.Sleep(GetAction().TimeRemain * 5);
             
             PhilosopherActionType? newAction = null;
+            bool canStartNewAction;
             while (newAction == null)
             {
-                _event.WaitOne();
+                // Console.WriteLine($"{Philosopher.Name} try get new act");
+                var res = strategy.GetNewAction(this);
+                newAction = res.newAction;
+                canStartNewAction = res.canStartNewAction;
+                // Console.WriteLine($"{Philosopher.Name} got new act: {newAction}, status: {canStartNewAction}");
                 
-                Console.WriteLine($"{Philosopher.Name} try get new act");
-                newAction = strategy.GetNewAction(this);
-                Console.WriteLine($"{Philosopher.Name} got new act: {newAction}");
+                if (newAction == Hungry) _hungryStartTime = DateTimeOffset.Now.Millisecond;
+                if (canStartNewAction) break;
+
+                if (newAction == PhilosopherActionType.GetLeftFork)
+                {
+                    strategy.AddWaitingForkRelease((IConcurrentFork)GetLeftFork(), this);
+                }
+                else if (newAction == PhilosopherActionType.GetRightFork)
+                {
+                    strategy.AddWaitingForkRelease((IConcurrentFork)GetRightFork(), this);
+                }
+                
+                _event.WaitOne();
             }
+            SetAction(newAction.Value);
         }
     }
-
+    
     public void WakeUp()
     {
         _event.Set();
@@ -71,7 +90,7 @@ public class ConcurrentPhilosopherManager(Philosopher philosopher, ConcurrentStr
     public override void SetAction(PhilosopherActionType philosopherAction)
     {
         Philosopher.PhilosopherAction = new ConcurrentPhilosopherAction(philosopherAction);
-        if (philosopherAction == PhilosopherActionType.Eating)
+        if (philosopherAction == Eating)
         {
             Philosopher.IncreaseEating();
         }

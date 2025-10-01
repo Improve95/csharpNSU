@@ -120,7 +120,7 @@ public abstract class DiningPhilosophers
         ConcurrentLogger? concurrentLogger = null;
         Thread? loggerThread = null;
 
-        enableLog = false;
+        enableLog = true;
         if (enableLog)
         {
             concurrentLogger = new ConcurrentLogger(managers, forks, 200);
