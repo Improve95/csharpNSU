@@ -105,7 +105,6 @@ public class ConcurrentStrategy : IConcurrentStrategy
         
         var whoTryGet = manager.Philosopher;
         var whoAlreadyGot = fork.Owner;
-        // if (whoAlreadyGot == whoTryGet) return true;
         if (whoAlreadyGot != null && AbstractPhilosopherManager.PhilosopherIsOwnerBothFork(whoAlreadyGot))
         {
             forkMutex.ReleaseMutex();

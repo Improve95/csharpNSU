@@ -1,6 +1,7 @@
 using ManagementImpl.service.impl;
 using philosophers.action;
 using philosophers.action.impl;
+using philosophers.objects.fork;
 using philosophers.objects.philosophers;
 using static philosophers.action.PhilosopherActionType;
 
@@ -59,10 +60,10 @@ public class ConcurrentPhilosopherManager(Philosopher philosopher, ConcurrentStr
                 if (newAction == Hungry) SetStartHungryTime(DateTimeOffset.Now.Millisecond);
                 if (canStartNewAction) break;
 
-                // strategy.AddWaitingForkRelease((IConcurrentFork)GetLeftFork(), this);
-                // strategy.AddWaitingForkRelease((IConcurrentFork)GetRightFork(), this);
+                strategy.AddWaitingForkRelease((IConcurrentFork)GetLeftFork(), this);
+                strategy.AddWaitingForkRelease((IConcurrentFork)GetRightFork(), this);
                 
-                // _event.WaitOne();
+                _event.WaitOne();
             }
             SetAction(newAction.Value);
         }
