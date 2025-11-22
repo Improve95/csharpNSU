@@ -116,49 +116,10 @@ public class ConcurrentStrategy : IConcurrentStrategy
             forkMutex.ReleaseMutex();
             return false;
         }
-        
-        /*if (AbstractPhilosopherManager.PhilosopherIsOwnerAtLeastOneFork(whoTryGet))
-        {
-            fork.DropOwner();
-        }*/
-        /*else
-        {
-            // Console.WriteLine("here2");
-            forkMutex.ReleaseMutex();
-            return false;
-        }*/
 
         fork.SetOwner(whoTryGet);
         
         forkMutex.ReleaseMutex();
         return true;
     }
-    
-    /*private bool TryGetFork(IConcurrentFork fork, ConcurrentPhilosopherManager manager)
-    {
-        var whoTryGet = manager.Philosopher;
-        var whoAlreadyGot = fork.Owner;
-        if (whoAlreadyGot == whoTryGet) return false;
-        if (whoAlreadyGot != null && AbstractPhilosopherManager.PhilosopherIsOwnerBothFork(whoAlreadyGot)) 
-            return false;
-        
-        if (AbstractPhilosopherManager.PhilosopherIsOwnerAtLeastOneFork(whoTryGet))
-        {
-            fork.DropOwner();
-            fork.Mutex.ReleaseMutex();
-        }
-
-        fork.Mutex.WaitOne();
-        fork.SetOwner(manager.Philosopher);
-        
-        return true;
-    }
-    
-    private void TakeFork(IConcurrentFork fork, ConcurrentPhilosopherManager manager)
-    {
-        // Console.WriteLine($"try take {manager.GetPhilosopherName()} fork {fork.Id}");
-        fork.Mutex.WaitOne();
-        // Console.WriteLine($"taken {manager.GetPhilosopherName()} fork {fork.Id}");
-        fork.SetOwner(manager.Philosopher);
-    }*/
 }
