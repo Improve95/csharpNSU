@@ -1,22 +1,19 @@
 using System.Data;
-using philosophers.objects.philosopher;
+using Service.objects.philosopher;
 
-namespace philosophers.objects.fork;
+namespace Service.objects.fork;
 
-public class Fork
+public class Fork(int id)
 {
-    private static int _nextId;
+    // private static int _nextId;
     
     public Philosopher? Owner { get; private set; }
 
-    public int Id { get; }
+    public int Id { get; } = id;
 
-    public Fork()
-    {
-        Id = _nextId;
-        _nextId++;
-    }
-    
+    // Id = _nextId;
+    // _nextId++;
+
     public ForkStatus Status { get; private set; }
     
     public void SetOwner(Philosopher owner)

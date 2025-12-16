@@ -1,13 +1,13 @@
 using Microsoft.Extensions.Hosting;
-using philosophers.action;
-using philosophers.objects.fork;
-using philosophers.service;
+using Service.action;
+using Service.objects.fork;
+using Service.service;
+using Service.service.impl;
 
-namespace philosophers.objects.philosopher;
+namespace Service.objects.philosopher;
 
 public class Philosopher : BackgroundService
 {
-    
     public int Id { get; }
 
     public string Name { get; }
@@ -26,16 +26,17 @@ public class Philosopher : BackgroundService
 
     private readonly Strategy _strategy;
     
-    private readonly AutoResetEvent _event = new(false);
+    private readonly SemaphoreSlim _signal = new(0);
+    // private readonly AutoResetEvent _event = new(false);
     
     private bool ContinueWork { get; set; } = true;
-    
-    public Philosopher(string name, Fork leftFork, Fork rightFork, Strategy strategy)
+
+    protected Philosopher(string name, IForkFactory forkFactory, Strategy strategy)
     {
         Id = _nextId;
         Name = name;
-        LeftFork = leftFork;
-        RightFork = rightFork;
+        LeftFork = forkFactory.GetLeftFork(Id);
+        RightFork = forkFactory.GetRightFork(Id);
         Action = new PhilosopherAction(PhilosopherActionType.Thinking);
         _strategy = strategy;
         _nextId++;
@@ -45,16 +46,15 @@ public class Philosopher : BackgroundService
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            Thread.Sleep(Action.TimeRemain * 5);
+            await Task.Delay(TimeSpan.FromMilliseconds(Action.TimeRemain * 5), stoppingToken);
             
             PhilosopherActionType? newAction = null;
-            bool canStartNewAction;
-            while (newAction == null)
+            while (newAction == null && !stoppingToken.IsCancellationRequested)
             {
                 // Console.WriteLine($"{Philosopher.Name} try get new act");
                 var res = _strategy.GetNewAction(this);
                 newAction = res.newAction;
-                canStartNewAction = res.canStartNewAction;
+                var canStartNewAction = res.canStartNewAction;
                 // Console.WriteLine($"{Philosopher.Name} got new act: {newAction}, status: {canStartNewAction}");
                 
                 if (newAction == PhilosopherActionType.Hungry) SetStartHungryTime(DateTimeOffset.Now.Millisecond);
@@ -62,10 +62,14 @@ public class Philosopher : BackgroundService
 
                 _strategy.AddWaitingForkRelease(LeftFork, this);
                 _strategy.AddWaitingForkRelease(RightFork, this);
-                
-                _event.WaitOne();
+
+                await _signal.WaitAsync(stoppingToken);
+                // _event.WaitOne();
             }
-            SetAction(newAction.Value);
+            if (newAction != null)
+            {
+                SetAction(newAction.Value);
+            }
         }
     }
 
@@ -87,7 +91,7 @@ public class Philosopher : BackgroundService
     public void WakeUp()
     {
         // Console.WriteLine($"wake up {Philosopher.Name}");
-        _event.Set();
+        _signal.Release();
     }
     
     public void Stop()

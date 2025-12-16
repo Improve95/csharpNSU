@@ -1,26 +1,28 @@
-﻿using IPhilosophers.service;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using philosophers.config;
-using philosophers.objects.philosopher;
-using philosophers.service;
+using Service.config;
+using Service.objects.philosopher;
 using Service.service;
+using Service.service.impl;
 
-namespace philosophers;
+namespace Service;
 
-public abstract class Program
+internal abstract class Program
 {
-    public static async Task Main()
+    public static async Task Main(string[] args)
     {
-        var host = Host.CreateDefaultBuilder()
-            .ConfigureServices((context, services) =>
+        var host = Host.CreateDefaultBuilder(args)
+            .ConfigureServices((context, services) => 
             {
-                services.Configure<SimulationConfiguration>(
-                    context.Configuration.GetSection("Simulation"));
+                var configuration = context.Configuration;
 
-                services.AddHostedService<IForkFactory>(new ForkFactory(5));
-                
+                services.Configure<SimulationConfiguration>(
+                    configuration.GetSection("Simulation"));
+
+                services.AddSingleton<IForkFactory>(new ForkFactory(5));
+                services.AddSingleton<Strategy>();
+
                 services.AddHostedService<Aristotel>();
                 services.AddHostedService<Dekart>();
                 services.AddHostedService<Kant>();

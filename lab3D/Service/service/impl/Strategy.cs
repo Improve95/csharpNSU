@@ -1,9 +1,9 @@
 using System.Collections.Concurrent;
-using philosophers.action;
-using philosophers.objects.fork;
-using philosophers.objects.philosopher;
+using Service.action;
+using Service.objects.fork;
+using Service.objects.philosopher;
 
-namespace philosophers.service;
+namespace Service.service.impl;
 
 public class Strategy
 {
