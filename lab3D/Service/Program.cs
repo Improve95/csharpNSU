@@ -6,7 +6,6 @@ using Microsoft.Extensions.Logging;
 using Service.config;
 using Service.objects.philosopher;
 using Service.service;
-using Service.service.impl;
 
 namespace Service;
 

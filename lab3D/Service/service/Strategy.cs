@@ -1,9 +1,9 @@
 using System.Collections.Concurrent;
-using Service.action;
-using Service.objects.fork;
+using IService.objects;
 using Service.objects.philosopher;
+using Utils.action;
 
-namespace Service.service.impl;
+namespace Service.service;
 
 public class Strategy
 {
@@ -77,12 +77,12 @@ public class Strategy
         return (null, false);
     }
 
-    public void AddWaitingForkRelease(Fork fork, Philosopher philosopher)
+    public void AddWaitingForkRelease(IFork fork, Philosopher philosopher)
     {
         _waitingFork[fork.Id] = philosopher;
     }
 
-    private void WakeUpSleepingPhilosophers(Fork fork)
+    private void WakeUpSleepingPhilosophers(IFork fork)
     {
         if (_waitingFork.TryGetValue(fork.Id, out var philosopher))
         {
@@ -99,7 +99,7 @@ public class Strategy
         }
     }
     
-    private bool TryGetFork2(Fork fork, Philosopher philosopher)
+    private bool TryGetFork2(IFork fork, Philosopher philosopher)
     {
         var forkMutex = fork.Mutex;
         forkMutex.WaitOne();

@@ -1,4 +1,4 @@
-namespace Service.action;
+namespace Utils.action;
 
 public class PhilosopherAction(PhilosopherActionType actionType)
 {

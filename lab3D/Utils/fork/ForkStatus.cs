@@ -1,4 +1,4 @@
-namespace Service.objects.fork;
+namespace Utils.fork;
 
 public enum ForkStatus
 {

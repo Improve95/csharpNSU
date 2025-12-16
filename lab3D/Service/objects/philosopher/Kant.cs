@@ -1,6 +1,5 @@
 using IService.service;
 using Service.service;
-using Service.service.impl;
 
 namespace Service.objects.philosopher;
 

@@ -1,4 +1,4 @@
-namespace Service.action;
+namespace Utils.action;
 
 public enum PhilosopherActionType
 {

@@ -1,13 +1,14 @@
 using System.Text;
+using IService.objects;
 using IService.service;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Service.config;
 using Service.objects.fork;
-using Service.objects.philosopher;
+using Utils.fork;
 
-namespace Service.service.impl;
+namespace Service.service;
 
 public class ConcurrentLogger(
     ITableManager tableManager,
@@ -15,7 +16,7 @@ public class ConcurrentLogger(
     ILogger<ConcurrentLogger> logger)
     : BackgroundService
 {
-    private readonly Fork[] _forks = tableManager.Forks;
+    private readonly IFork[] _forks = tableManager.Forks;
     
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {

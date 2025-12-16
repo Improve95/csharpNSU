@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Service.config;
 
-namespace Service.service.impl;
+namespace Service.service;
 
 public class SimulationLifetimeService(
     IHostApplicationLifetime lifetime,

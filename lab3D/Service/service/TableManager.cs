@@ -1,16 +1,16 @@
+using IService.objects;
 using IService.service;
 using Service.objects.fork;
-using Service.objects.philosopher;
 
-namespace Service.service.impl;
+namespace Service.service;
 
 public class TableManager : ITableManager
 {
     public int PhilosopherCount { get; }
 
-    public Fork[] Forks { get; }
+    public IFork[] Forks { get; }
 
-    public IDictionary<int, Philosopher> Philosophers { get; } 
+    public IDictionary<int, IPhilosopher> Philosophers { get; } 
     
     public TableManager(int philosopherCount)
     {
@@ -18,20 +18,20 @@ public class TableManager : ITableManager
         Forks = Enumerable.Range(0, philosopherCount)
             .Select(i => new Fork(i))
             .ToArray();
-        Philosophers = new Dictionary<int, Philosopher>();
+        Philosophers = new Dictionary<int, IPhilosopher>();
     }
 
-    public void RegisterPhilosopher(Philosopher philosopher)
+    public void RegisterPhilosopher(IPhilosopher philosopher)
     {
         Philosophers[philosopher.Id] = philosopher;
     }
     
-    public Fork GetLeftFork(int philosopherId)
+    public IFork GetLeftFork(int philosopherId)
     {
         return Forks[philosopherId];
     }
 
-    public Fork GetRightFork(int philosopherId)
+    public IFork GetRightFork(int philosopherId)
     {
         return Forks[(philosopherId + 1) % PhilosopherCount];
     }
