@@ -1,6 +1,7 @@
+using Service.service;
 using Service.service.impl;
 
 namespace Service.objects.philosopher;
 
-public class Kant(string name, ForkFactory forkFactory, Strategy strategy) 
+public class Kant(IForkFactory forkFactory, Strategy strategy) 
     : Philosopher("Кант", forkFactory, strategy) {}

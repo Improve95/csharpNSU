@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Service.config;
@@ -13,10 +14,14 @@ internal abstract class Program
     public static async Task Main(string[] args)
     {
         var host = Host.CreateDefaultBuilder(args)
+            .ConfigureAppConfiguration(config =>
+            {
+                config.AddJsonFile("/Users/improvemac/Documents/coding/csharp/csharpNSU/lab3D/Service/appsettings.json", false, true);
+            })
             .ConfigureServices((context, services) => 
             {
                 var configuration = context.Configuration;
-
+                
                 services.Configure<SimulationConfiguration>(
                     configuration.GetSection("Simulation"));
 
