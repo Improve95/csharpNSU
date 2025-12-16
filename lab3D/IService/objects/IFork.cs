@@ -8,7 +8,7 @@ public interface IFork
     void DropOwner();
     bool IsOwner(IPhilosopher philosopher);
     IPhilosopher? Owner { get; }
-    Mutex Mutex { get; }
     int Id { get; }
     ForkStatus Status { get; }
+    public SemaphoreSlim Lock { get; }
 }

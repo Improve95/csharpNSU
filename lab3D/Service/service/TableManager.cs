@@ -17,7 +17,7 @@ public class TableManager : ITableManager
         PhilosopherCount = philosopherCount;
         Forks = Enumerable.Range(0, philosopherCount)
             .Select(i => new Fork(i))
-            .ToArray();
+            .ToArray<IFork>();
         Philosophers = new Dictionary<int, IPhilosopher>();
     }
 

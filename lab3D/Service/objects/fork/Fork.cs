@@ -29,5 +29,5 @@ public class Fork(int id) : IFork
         return Owner == philosopher;
     }
     
-    public Mutex Mutex { get; } = new();
+    public SemaphoreSlim Lock { get; } = new(1, 1);
 }

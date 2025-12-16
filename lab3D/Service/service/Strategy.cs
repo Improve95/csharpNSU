@@ -10,7 +10,7 @@ public class Strategy
     private readonly IDictionary<int, Philosopher> _waitingFork = 
         new ConcurrentDictionary<int, Philosopher>();
     
-    public (PhilosopherActionType? newAction, bool canStartNewAction) GetNewAction(Philosopher philosopher)
+    public (PhilosopherActionType? newAction, bool canStartNewAction) GetNewAction(Philosopher philosopher, CancellationToken stoppingToken)
     {
         var actionType = philosopher.GetActionType();
         if (actionType == PhilosopherActionType.Thinking)
@@ -29,46 +29,34 @@ public class Strategy
         
         if (actionType is PhilosopherActionType.Hungry or PhilosopherActionType.GetRightFork)
         {
-            if (TryGetFork2(philosopher.LeftFork, philosopher))
+            if (TryGetFork2(philosopher.LeftFork, philosopher, stoppingToken))
             {
                 return (PhilosopherActionType.GetLeftFork, true);
             }
-
-            // if (TryGetFork2((ConcurrentFork)manager.GetRightFork(), manager))
-            // {
-            //     return (GetRightFork, true);
-            // }
-
             return (PhilosopherActionType.GetLeftFork, false);
         }
         
         if (actionType is PhilosopherActionType.Hungry or PhilosopherActionType.GetLeftFork)
         {
-            if (TryGetFork2(philosopher.RightFork, philosopher))
+            if (TryGetFork2(philosopher.RightFork, philosopher, stoppingToken))
             {
                 return (PhilosopherActionType.GetRightFork, true);
             }
-            
-            // if (TryGetFork2((ConcurrentFork)manager.GetLeftFork(), manager))
-            // {
-            //     return (GetLeftFork, true);
-            // }
-            
             return (PhilosopherActionType.GetRightFork, false);
         }
 
         if (actionType == PhilosopherActionType.Eating)
         {
             var leftFork = philosopher.LeftFork;
-            leftFork.Mutex.WaitOne();
+            leftFork.Lock.WaitAsync(stoppingToken);
             leftFork.DropOwner();
-            leftFork.Mutex.ReleaseMutex();
+            leftFork.Lock.Release();
             WakeUpSleepingPhilosophers(leftFork);
             
             var rightFork = philosopher.RightFork;
-            rightFork.Mutex.WaitOne();
+            rightFork.Lock.WaitAsync(stoppingToken);
             rightFork.DropOwner();
-            rightFork.Mutex.ReleaseMutex();
+            rightFork.Lock.Release();
             WakeUpSleepingPhilosophers(rightFork);
             
             return (PhilosopherActionType.Thinking, true);
@@ -86,41 +74,33 @@ public class Strategy
     {
         if (_waitingFork.TryGetValue(fork.Id, out var philosopher))
         {
-            /*if (manager.GetTotalEating() > 15)
-            {
-                foreach (var el in _waitingFork)
-                {
-                    Console.WriteLine($"{el.Key}: {el.Value.GetPhilosopherName()}");
-                }
-            }*/
-            
             philosopher.WakeUp();
             _waitingFork.Remove(fork.Id);
         }
     }
     
-    private bool TryGetFork2(IFork fork, Philosopher philosopher)
+    private bool TryGetFork2(IFork fork, Philosopher philosopher, CancellationToken stoppingToken)
     {
-        var forkMutex = fork.Mutex;
-        forkMutex.WaitOne();
+        var forkMutex = fork.Lock;
+        forkMutex.WaitAsync(stoppingToken);
         
         var whoTryGet = philosopher;
         var whoAlreadyGot = fork.Owner;
         if (whoAlreadyGot != null && Philosopher.PhilosopherIsOwnerBothFork(whoAlreadyGot))
         {
-            forkMutex.ReleaseMutex();
+            forkMutex.Release();
             return false;
         }
 
         if (whoAlreadyGot != null && whoAlreadyGot.HungryStartTime < whoTryGet.HungryStartTime)
         {
-            forkMutex.ReleaseMutex();
+            forkMutex.Release();
             return false;
         }
 
         fork.SetOwner(whoTryGet);
         
-        forkMutex.ReleaseMutex();
+        forkMutex.Release();
         return true;
     }
 }

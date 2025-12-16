@@ -52,7 +52,7 @@ public class Philosopher : BackgroundService, IPhilosopher
             PhilosopherActionType? newAction = null;
             while (newAction == null && !stoppingToken.IsCancellationRequested)
             {
-                var res = _strategy.GetNewAction(this);
+                var res = _strategy.GetNewAction(this, stoppingToken);
                 newAction = res.newAction;
                 var canStartNewAction = res.canStartNewAction;
                 if (newAction == PhilosopherActionType.Hungry) SetStartHungryTime(DateTimeOffset.Now.Millisecond);
@@ -87,7 +87,6 @@ public class Philosopher : BackgroundService, IPhilosopher
     
     public void WakeUp()
     {
-        // Console.WriteLine($"wake up {Philosopher.Name}");
         _signal.Release();
     }
     
