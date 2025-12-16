@@ -23,7 +23,6 @@ public class SimulationLifetimeService(
         }
         catch (TaskCanceledException)
         {
-            
             return;
         }
         

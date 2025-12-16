@@ -1,9 +1,10 @@
 using System.Data;
+using IService.objects;
 using Service.objects.philosopher;
 
 namespace Service.objects.fork;
 
-public class Fork(int id)
+public class Fork(int id) : IFork
 {
     // private static int _nextId;
     

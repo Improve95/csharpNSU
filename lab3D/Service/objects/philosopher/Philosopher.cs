@@ -1,3 +1,5 @@
+using IService.objects;
+using IService.service;
 using Microsoft.Extensions.Hosting;
 using Service.action;
 using Service.objects.fork;
@@ -6,7 +8,7 @@ using Service.service.impl;
 
 namespace Service.objects.philosopher;
 
-public class Philosopher : BackgroundService
+public class Philosopher : BackgroundService, IPhilosopher
 {
     public int Id { get; }
 
@@ -31,12 +33,13 @@ public class Philosopher : BackgroundService
     
     private bool ContinueWork { get; set; } = true;
 
-    protected Philosopher(string name, IForkFactory forkFactory, Strategy strategy)
+    protected Philosopher(string name, ITableManager tableManager, Strategy strategy)
     {
         Id = _nextId;
         Name = name;
-        LeftFork = forkFactory.GetLeftFork(Id);
-        RightFork = forkFactory.GetRightFork(Id);
+        LeftFork = tableManager.GetLeftFork(Id);
+        RightFork = tableManager.GetRightFork(Id);
+        tableManager.RegisterPhilosopher(this);
         Action = new PhilosopherAction(PhilosopherActionType.Thinking);
         _strategy = strategy;
         _nextId++;

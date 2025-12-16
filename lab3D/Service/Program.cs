@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using IService.service;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -25,16 +26,17 @@ internal abstract class Program
                 services.Configure<SimulationConfiguration>(
                     configuration.GetSection("Simulation"));
 
-                services.AddSingleton<IForkFactory>(new ForkFactory(5));
+                services.AddSingleton<ITableManager>(new TableManager(5));
                 services.AddSingleton<Strategy>();
-
+                
                 services.AddHostedService<Aristotel>();
                 services.AddHostedService<Dekart>();
                 services.AddHostedService<Kant>();
                 services.AddHostedService<Platon>();
                 services.AddHostedService<Socrat>();
-
+                
                 services.AddHostedService<SimulationLifetimeService>();
+                services.AddHostedService<ConcurrentLogger>();
             })
             .ConfigureLogging(logging =>
             {
