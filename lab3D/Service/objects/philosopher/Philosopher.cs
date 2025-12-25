@@ -1,8 +1,6 @@
 using IService.objects;
 using IService.service;
 using Microsoft.Extensions.Hosting;
-using Service.objects.fork;
-using Service.service;
 using Utils.action;
 
 namespace Service.objects.philosopher;
@@ -15,9 +13,9 @@ public class Philosopher : BackgroundService, IPhilosopher
 
     public PhilosopherAction Action { get; set; }
     
-    public IFork LeftFork { get; }
+    public IFork LeftFork { get; set;  }
 
-    public IFork RightFork { get; }
+    public IFork RightFork { get; set; }
 
     public int TotalEating { get; private set; }
     
@@ -25,13 +23,13 @@ public class Philosopher : BackgroundService, IPhilosopher
     
     private static int _nextId;
 
-    private readonly Strategy _strategy;
+    private readonly IStrategy _strategy;
     
     private readonly SemaphoreSlim _signal = new(0);
 
     public bool ContinueWork { get; set; } = true;
 
-    protected Philosopher(string name, ITableManager tableManager, Strategy strategy)
+    public Philosopher(string name, ITableManager tableManager, IStrategy strategy)
     {
         Id = _nextId;
         Name = name;

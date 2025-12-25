@@ -1,16 +1,17 @@
 using System.Collections.Concurrent;
 using IService.objects;
+using IService.service;
 using Service.objects.philosopher;
 using Utils.action;
 
 namespace Service.service;
 
-public class Strategy
+public class Strategy : IStrategy
 {
-    private readonly IDictionary<int, Philosopher> _waitingFork = 
-        new ConcurrentDictionary<int, Philosopher>();
+    private readonly IDictionary<int, IPhilosopher> _waitingFork = 
+        new ConcurrentDictionary<int, IPhilosopher>();
     
-    public (PhilosopherActionType? newAction, bool canStartNewAction) GetNewAction(Philosopher philosopher, CancellationToken stoppingToken)
+    public (PhilosopherActionType? newAction, bool canStartNewAction) GetNewAction(IPhilosopher philosopher, CancellationToken stoppingToken)
     {
         var actionType = philosopher.GetActionType();
         if (actionType == PhilosopherActionType.Thinking)
@@ -65,7 +66,7 @@ public class Strategy
         return (null, false);
     }
 
-    public void AddWaitingForkRelease(IFork fork, Philosopher philosopher)
+    public void AddWaitingForkRelease(IFork fork, IPhilosopher philosopher)
     {
         _waitingFork[fork.Id] = philosopher;
     }
@@ -79,7 +80,7 @@ public class Strategy
         }
     }
     
-    private bool TryGetFork2(IFork fork, Philosopher philosopher, CancellationToken stoppingToken)
+    private bool TryGetFork2(IFork fork, IPhilosopher philosopher, CancellationToken stoppingToken)
     {
         var forkMutex = fork.Lock;
         forkMutex.WaitAsync(stoppingToken);

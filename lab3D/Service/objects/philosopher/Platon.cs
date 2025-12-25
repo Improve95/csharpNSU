@@ -1,7 +1,6 @@
 using IService.service;
-using Service.service;
 
 namespace Service.objects.philosopher;
 
-public class Platon(ITableManager tableManager, Strategy strategy) 
+public class Platon(ITableManager tableManager, IStrategy strategy) 
     : Philosopher("Платон", tableManager, strategy) {}

@@ -7,8 +7,8 @@ public interface IPhilosopher
     int Id { get; }
     string Name { get; }
     PhilosopherAction Action { get; set; }
-    IFork LeftFork { get; }
-    IFork RightFork { get; }
+    IFork LeftFork { get; set; }
+    IFork RightFork { get; set;  }
     int TotalEating { get; }
     int HungryStartTime { get; set; }
     bool ContinueWork { get; set; }

@@ -1,7 +1,6 @@
 using IService.service;
-using Service.service;
 
 namespace Service.objects.philosopher;
 
-public class Kant(ITableManager tableManager, Strategy strategy) 
+public class Kant(ITableManager tableManager, IStrategy strategy) 
     : Philosopher("Кант", tableManager, strategy) {}
